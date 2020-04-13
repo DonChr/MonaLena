@@ -31,7 +31,7 @@ MLGray::MLGray(int w, int h) {
 	data = new int32_t[width * height];
 }
 
-MLGray::MLGray(int w,int h,int32_t srcdata[]) {
+MLGray::MLGray(int w,int h,int32_t *srcdata) {
 	width = w;
 	height = h;
 	int sz = width * height;
@@ -45,7 +45,7 @@ MLGray::~MLGray() {
 	delete[] data;
 }
 
-unsigned char* MLGray::LoadStbi(string fileName, int& width, int& height, int& channels) {
+unsigned char* MLGray::LoadImage(string fileName, int& width, int& height, int& channels) {
 	return stbi_load(fileName.c_str(),&width,&height,&channels,0);
 }
 
@@ -57,12 +57,21 @@ bool MLGray::CopyData(const unsigned char* d) {
 	return true;
 }
 
-bool MLGray::Saturate(string fileName, double wRed, double wGreen, double wBlue) {
-	int ch;
-	unsigned char* d = LoadStbi(fileName, width, height, ch);
-	std::cout << fileName << ", width = " << width << ",h = " << height << ", ch = " << ch << std::endl;
-	if (d == nullptr) { return false; }
+bool MLGray::CreateImage(int w, int h) {
+	width = w;
+	height = h;
+	if (data != nullptr) { delete[] data; }
 	data = new int32_t[width * height];
+	if (data == nullptr) { return false; }
+	return true;
+}
+
+
+bool MLGray::Saturate(string fileName, double wRed, double wGreen, double wBlue) {
+	int ch,w,h;
+	unsigned char* d = LoadImage(fileName, w, h, ch);
+	if (d == nullptr) { return false; }
+	CreateImage(w, h);
 	if (ch == 1) { return CopyData(d); }
 	int32_t r, g, b;
 	for (int y = 0; y < height; y++) {
@@ -91,7 +100,7 @@ bool MLGray::SaturateQt(const string fileName,double scaleFac) {
 
 bool MLGray::Desaturate(const string fileName) {
 	int ch;
-	unsigned char* d = LoadStbi(fileName, width, height, ch);
+	unsigned char* d = LoadImage(fileName, width, height, ch);
 	if (d == nullptr) { return false; }
 	data = new int32_t[width * height];
 	if (ch == 1) { return CopyData(d); }
@@ -118,7 +127,7 @@ bool MLGray::Desaturate(const string fileName) {
 
 bool MLGray::Value(const string fileName) {
 	int ch;
-	unsigned char* d = LoadStbi(fileName, width, height, ch);
+	unsigned char* d = LoadImage(fileName, width, height, ch);
 	if (d == nullptr) { return false; }
 	data = new int32_t[width * height];
 	if (ch == 1) { return CopyData(d); }
@@ -142,7 +151,7 @@ bool MLGray::Value(const string fileName) {
 
 bool MLGray::Helmholtz(const string fileName,double factor) {
 	int ch;
-	unsigned char* d = LoadStbi(fileName, width, height, ch);
+	unsigned char* d = LoadImage(fileName, width, height, ch);
 	if (d == nullptr) { return false; }
 	data = new int32_t[width * height];
 	if (ch == 1) { return CopyData(d); }
@@ -173,7 +182,7 @@ bool MLGray::Logistic(double scale) {
 			double v = (data[lpos + x]-128)*scale;
 			v = 1.0 / (1.0 + exp(-v));
 
-			data[lpos + x] = (int32_t)(255*v+0.5);
+			data[lpos + x] = (int32_t)(WHITE*v+0.5);
 		}
 	}
 	return true;
@@ -192,7 +201,7 @@ bool MLGray::Jarvis(int32_t threshold) {
 		for (int x = 0; x < width; x++) {
 			px = lpos + x;
 			int32_t v = data[px];
-			data[px] = (v < threshold) ? 0 : 255;
+			data[px] = (v < threshold) ? BLACK : WHITE;
 			int32_t err = v - data[px];
 			if (x < width - 1) {
 				data[px + 1] += (int32_t)(err * f7 + 0.5);
@@ -247,7 +256,7 @@ bool MLGray::FloydSteinberg(int32_t threshold) {
 	for (int y = 0; y < height - 1; y++) {
 		lpos = line(y);
 		int32_t v = data[lpos];
-		data[lpos] = (v < threshold) ? 0 : 255;
+		data[lpos] = (v < threshold) ? BLACK : WHITE;
 		int32_t err = v - data[lpos];
 		data[lpos + 1] += (int32_t)(err * f7 +0.5);
 		data[lpos + width] += (int32_t)(err * f5 + 0.5);
@@ -255,7 +264,7 @@ bool MLGray::FloydSteinberg(int32_t threshold) {
 		for (int x = 1; x < width - 1; x++) {
 			px = lpos + x;
 			int32_t v = data[px];
-			data[px] = (v < threshold) ? 0 : 255;
+			data[px] = (v < threshold) ? BLACK : WHITE;
 			int32_t err = v - data[px];
 			data[px + 1] += (int32_t)(err * f7 + 0.5); 
 			data[px + width-1] += (int32_t)(err * f3 + 0.5);
@@ -264,7 +273,7 @@ bool MLGray::FloydSteinberg(int32_t threshold) {
 		}
 		px = lpos + width - 1;
 		v = data[px];
-		data[px] = (v < threshold) ? 0 : 255;
+		data[px] = (v < threshold) ? BLACK : WHITE;
 		err = v - data[px];
 		data[px + width - 1] += (int32_t)(err * f3 + 0.5);
 		data[px + width] += (int32_t)(err * f5 + 0.5);
@@ -273,7 +282,7 @@ bool MLGray::FloydSteinberg(int32_t threshold) {
 	for (int x = 0; x < width - 1;x++) {
 		px = lpos + x;
 		int32_t v = data[px];
-		data[px] = (v < threshold) ? 0 : 255;
+		data[px] = (v < threshold) ? BLACK : WHITE;
 		int32_t err = v - data[px];
 		data[px + 1] += (int32_t)(err * f7 + 0.5);
 	}
@@ -290,18 +299,18 @@ bool MLGray::Ostromoukhov(int32_t threshold) {
 	for (int y = 0; y < height - 1; y++) {
 		lpos = line(y);
 		int32_t v = clamp(data[lpos]);
-		data[lpos] = (v < threshold) ? 0 : 255;
+		data[lpos] = (v < threshold) ? BLACK : WHITE;
 		int32_t err = v - data[lpos];
 		v*=4;
 		f0 = OstromC[v] / OstromC[v + 3];
 		f1 = OstromC[v+1] / OstromC[v + 3];
-		f2 = OstromC[v+2] / OstromC[v + 3];
+		f2 = OstromC[v + 2] / OstromC[v + 3]; 
 		data[lpos + 1] += (int32_t)(err * f0 + 0.5);
 		data[lpos + width] += (int32_t)(err * f2 + 0.5);
 		for (int x = 1; x < width - 1; x++) {
 			px = lpos + x;
 			int32_t v = clamp(data[px]);
-			data[px] = (v < threshold) ? 0 : 255;
+			data[px] = (v < threshold) ? BLACK : WHITE;
 			int32_t err = v - data[px];
 			v *= 4;
 			f0 = OstromC[v] / OstromC[v + 3];
@@ -313,7 +322,7 @@ bool MLGray::Ostromoukhov(int32_t threshold) {
 		}
 		px = lpos + width - 1;
 		v = clamp(data[px]);
-		data[px] = (v < threshold) ? 0 : 255;
+		data[px] = (v < threshold) ? BLACK : WHITE;
 		err = v - data[px];
 		v *= 4;
 		f1 = OstromC[v + 1] / OstromC[v + 3];
@@ -324,8 +333,8 @@ bool MLGray::Ostromoukhov(int32_t threshold) {
 	lpos = line(height - 1);
 	for (int x = 0; x < width - 1; x++) {
 		px = lpos + x;
-		int32_t v = data[px];
-		data[px] = (v < threshold) ? 0 : 255;
+		int32_t v = clamp(data[px]);
+		data[px] = (v < threshold) ? BLACK : WHITE;
 		int32_t err = v - data[px];
 		v *= 4;
 		f0 = OstromC[v] / OstromC[v + 3];
@@ -349,52 +358,47 @@ bool MLGray::LaplaceSharpen(double factor) {
 	return true;
 }
 
-
-bool MLGray::KirschSharpen(double factor) {
+bool MLGray::Bayer44() {
 	if ((height <= 0) || (width <= 0)) { return false; }
+
 	MLGray t = MLGray(width, height, data);
 	for (int y = 1; y < height - 1; y++) {
 		int lpos = line(y);
+		int my = (y % 4)*4;
 		for (int x = 1; x < width - 1; x++) {
 			int px = lpos + x;
-			int32_t gmax = t.Conv33(px, KirschN);
-			int32_t gmin = gmax;
-			int32_t g = t.Conv33(px, KirschNE);
-			gmax = std::max(gmax,g);
-			gmin = std::min(gmax, g);
-			g = t.Conv33(px, KirschNW);
-			gmax = std::max(gmax, g);
-			gmin = std::min(gmax, g);
-			g = t.Conv33(px, KirschW);
-			gmax = std::max(gmax, g);
-			gmin = std::min(gmax, g);
-			g = t.Conv33(px, KirschE);
-			gmax = std::max(gmax, g);
-			gmin = std::min(gmax, g);
-			g = t.Conv33(px, KirschSW);
-			gmax = std::max(gmax, g);
-			gmin = std::min(gmax, g);
-			g = t.Conv33(px, KirschS);
-			gmax = std::max(gmax, g);
-			gmin = std::min(gmax, g);
-			g = t.Conv33(px, KirschSE);
-			gmax = std::max(gmax, g);
-			gmin = std::min(gmax, g);
-			g = (abs(gmax) > abs(gmin)) ? gmax : gmin;
-			data[px] += (int32_t)(factor * g + 0.5);
+			int mx = my + (x % 4);
+			int32_t v = data[px];
+			data[px] = (v>=BayerMsk44[mx])?WHITE:BLACK;
+		}
+	}
+	return true;
+}
+
+bool MLGray::Bayer88() {
+	if ((height <= 0) || (width <= 0)) { return false; }
+
+	MLGray t = MLGray(width, height, data);
+	for (int y = 1; y < height - 1; y++) {
+		int lpos = line(y);
+		int my = (y % 8) * 8;
+		for (int x = 1; x < width - 1; x++) {
+			int px = lpos + x;
+			int mx = my + (x % 8);
+			int32_t v = data[px];
+			data[px] = (v >= BayerMsk88[mx]) ? WHITE : BLACK;
 		}
 	}
 	return true;
 }
 
 
+
+
+
 bool MLGray::LaplaceFilter(int offset) {
 	if ((height <= 0) || (width <= 0)) { return false; }
-	MLGray t = MLGray(width, height);
-	int sz = width * height;
-	for (int i = 0; i < sz; i++) {
-		t.data[i] = data[i];
-	}
+	MLGray t = MLGray(width, height,data);
 	for (int y = 1; y < height - 1; y++) {
 		int lpos = line(y);
 		for (int x = 1; x < width - 1; x++) {
@@ -407,6 +411,36 @@ bool MLGray::LaplaceFilter(int offset) {
 	}
 	return false;
 }
+
+void MLGray::LinearGradient(bool blackToWhite) {
+	CreateImage(512,512);
+	for (int y = 0; y < height; y++) {
+		int lpos = line(y);
+		for (int x = 1; x < width - 1; x++) {
+			int px = lpos + x;
+			data[px] = (blackToWhite) ? x / 2 : WHITE - x / 2;
+		}
+	}
+}
+
+void MLGray::RadialGradient(bool blackToWhite) {
+	CreateImage(512, 512);
+	const double xm = 255.5;
+	const double ym = 255.5;
+
+	for (int y = 0; y < height; y++) {
+		int lpos = line(y);
+		for (int x = 1; x < width - 1; x++) {
+			int px = lpos + x;
+			double dy = y - ym;
+			double dx = x - xm;
+			double d = sqrt(dy * dy + dx * dx);
+			double v = (blackToWhite) ? d : WHITE - d;
+			data[px] = (int32_t)(v + 0.5);
+		}
+	}
+}
+
 
 unsigned char* MLGray::ToStb() {
 	int sz = width * height;
@@ -421,10 +455,16 @@ unsigned char* MLGray::ToStb() {
 }
 
 bool MLGray::SaveImage(string base, string fname,int quality) {
-	unsigned char* img = ToStb();
 	string fileName = "./image/" + base + "_" + fname + ".jpg";
-	stbi_write_jpg(fileName.c_str(), width, height, RGB_Channels, img,quality);
+	return SaveImage(fileName, quality);
+}
+
+bool MLGray::SaveImage(string fileName, int quality) {
+	unsigned char* img = ToStb();
+	stbi_write_jpg(fileName.c_str(), width, height, RGB_Channels, img, quality);
+	delete[] img;
 	return true;
+
 }
 
 
