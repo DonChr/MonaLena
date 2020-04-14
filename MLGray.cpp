@@ -10,6 +10,7 @@
 #include <iostream>
 #include <random>
 #include <algorithm>
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
@@ -358,6 +359,47 @@ bool MLGray::LaplaceSharpen(double factor) {
 	return true;
 }
 
+bool MLGray::MedianFilter33() {
+	if ((height <= 0) || (width <= 0)) { return false; }
+
+	MLGray t = MLGray(width, height, data);
+	for (int y = 1; y < height - 1; y++) {
+		int lpos = line(y);
+		for (int x = 1; x < width - 1; x++) {
+			int px = lpos + x;
+			data[px] = t.Median33(px);
+		}
+	}
+	return true;
+}
+
+bool MLGray::SaltPepper(int32_t threshold) {
+	if ((height <= 0) || (width <= 0)) { return false; }
+	int32_t wthreshold = threshold*WHITE;
+	int32_t bthreshold = (9 - threshold) * WHITE;
+	MLGray t = MLGray(width, height, data);
+	for (int y = 1; y < height - 1; y++) {
+		int lpos = line(y);
+		for (int x = 1; x < width - 1; x++) {
+			int px = lpos + x;
+			int v = data[px];
+			int a = Accumulate33(px);
+			if (v == WHITE) {
+				if (a <= wthreshold) { data [px]= BLACK; }
+			}
+			else {
+				if (a >= bthreshold) { data[px] = WHITE; }
+			}
+
+
+			data[px] = t.Median33(px);
+		}
+	}
+	return true;
+}
+
+
+
 bool MLGray::Bayer44() {
 	if ((height <= 0) || (width <= 0)) { return false; }
 
@@ -391,6 +433,27 @@ bool MLGray::Bayer88() {
 	}
 	return true;
 }
+
+bool MLGray::BayerRnd88(int32_t range) {
+	if ((height <= 0) || (width <= 0)||(range<=0)) { return false; }
+	std::mt19937 rnd(47114713); // seed the generator
+	std::uniform_int_distribution<> unif(-range,range); // define the range
+
+
+	MLGray t = MLGray(width, height, data);
+	for (int y = 1; y < height - 1; y++) {
+		int lpos = line(y);
+		int my = (y % 8) * 8;
+		for (int x = 1; x < width - 1; x++) {
+			int px = lpos + x;
+			int mx = my + (x % 8);
+			int32_t v = data[px]+unif(rnd);
+			data[px] = (v >= BayerMsk88[mx]) ? WHITE : BLACK;
+		}
+	}
+	return true;
+}
+
 
 
 

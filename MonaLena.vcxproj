@@ -147,10 +147,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Calc.cpp" />
     <ClCompile Include="MLGray.cpp" />
     <ClCompile Include="MonaLena.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Calc.h" />
     <ClInclude Include="MLGray.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="stb_image_write.h" />

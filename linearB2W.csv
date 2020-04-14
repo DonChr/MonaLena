@@ -4,6 +4,7 @@ LinearB2W,GIMP,,Jarvis:128,,LinearB2W_GIMP_Jarvis
 LinearB2W,GIMP,,Ostromoukhov:128,,LinearB2W_GIMP_Ostromoukhov
 LinearB2W,GIMP,,Bayer44,,LinearB2W_GIMP_Bayer44
 LinearB2W,GIMP,,Bayer88,,LinearB2W_GIMP_Bayer88
+LinearB2W,GIMP,,BayerRnd88:32,,LinearB2W_GIMP_BayerRnd88
 LinearB2W,GIMP,Laplace,FloydSteinberg:128,,LinearB2W_GIMP_Laplace_FloydSteinberg
 LinearB2W,GIMP,Laplace,Jarvis:128,,LinearB2W_GIMP_Laplace_Jarvis
 LinearB2W,GIMP,Laplace,Ostromoukhov:128,,LinearB2W_GIMP_Laplace_Ostromoukhov

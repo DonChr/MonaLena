@@ -10,6 +10,8 @@
 #pragma once
 #include <cstdint>
 #include <string>
+#include "Calc.h"
+
 
 using std::string;
 /**
@@ -163,6 +165,11 @@ public:
     */
     bool LaplaceSharpen(double factor=-1.0);
     /**
+    <summary> Filters the image with the median of the 3x3 neighbours</summary>
+    <returns>true if operation successfull, false if failed (empty image).</returns>
+    */
+    bool MedianFilter33();
+    /**
     <summary> Calcuates a Laplace-filter for the image. This can be used for edge detection. But is has no direct
        use for halftoning.
     </offsetsummary>
@@ -204,7 +211,18 @@ public:
     <returns>true if operation successfull, false if failed (empty image).</returns>
     */
     bool Bayer88();
+    /**
+    */
+    bool BayerRnd88(int32_t range=32);
 
+    /**
+    <summary> Postprocessing of image. Removes Salt and Pepper. Flips Pixel if there are too less
+    of own color in 3x3 region.</summary>
+    <param name="threshold">The nummer of pixels of same color. Default: 1</param>
+    <returns>true if operation successfull, false if failed(empty image).< / returns>
+  */
+    bool SaltPepper(int32_t threshold = 1);
+  
     /**
     <summary> Generates a linear gradient image from black to white with the size 512x512</summary>
     <param name="blackToWhite">If true the image starts on the left with BLACK and increase to the right to WHITE.
@@ -246,7 +264,22 @@ private:
     const int32_t WHITE = 255;
 	inline int pos(int x, int y) { return y * width + x; }
 	inline int line(int y) { return y * width; }
-	inline int clamp(int c) { return (c < 0) ? 0 : (c < 256) ? c : 255; }
+	inline int clamp(int c) { return (c < 0) ? BLACK : (c <= WHITE) ? c : WHITE; }
+
+    inline int32_t Median33(int x) {
+        return Median9(data[x - width - 1], data[x - width], data[x - width + 1],
+            data[x - 1], data[x], data[x + 1],
+            data[x + width - 1], data[x + width], data[x + width + 1]);
+    }
+
+    inline int32_t Accumulate33(int x) {
+        int32_t v = data[x - width - 1] + data[x - width] + data[x - width + 1]+
+                    data[x - 1] + data[x] + data[x + 1] + 
+                    data[x + width - 1] + data[x + width] + data[x + width + 1];
+        return v;
+    }
+
+
     /**
     <summary>Calculates the value of a 3x3 Convolution/Filter. The convolution mask is given in w.<summary>
     <attention> Do not call this function at the border of the image. </attention>

@@ -96,6 +96,9 @@ bool Preprocess(string op, MLGray& img) {
 		if (Param(op, p1)) { return img.Logistic(p1); }
 		return img.Logistic();
 	}
+	if (op.find("Median") == 0) {
+		return img.MedianFilter33();
+	}
 	return false;
 }
 
@@ -121,10 +124,21 @@ bool Halftoning(string op, MLGray& img) {
 	if (op.find("Bayer88") == 0) {
 		return img.Bayer88();
 	}
+	if (op.find("BayerRnd88") == 0) {
+		if (Param(op, p1)) { return img.BayerRnd88(p1); }
+		return img.BayerRnd88();
+	}
 	return false;
 }
 
 bool Postprocess(string op, MLGray& img) {
+	if (op.empty()) { return false; }
+	op.erase(remove(op.begin(), op.end(), ' '), op.end());
+	int p1;
+	if (op.find("SaltPepper") == 0) {
+		if (Param(op, p1)) { return img.SaltPepper(p1); }
+		return img.SaltPepper();
+	}
 	return false; // Postprocessing TBD
 }
 
