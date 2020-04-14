@@ -1,0 +1,11 @@
+input-image,grayconverter,preprocess,halftone,postprocess,output-image
+Landscape,GIMP,,FloydSteinberg:128,,Landscape_GIMP_FloydSteinberg
+Landscape,GIMP,,Jarvis:128,,Landscape_GIMP_Jarvis
+Landscape,GIMP,,Ostromoukhov:128,,Landscape_GIMP_Ostromoukhov
+Landscape,GIMP,,Bayer44,,Landscape_GIMP_Bayer44
+Landscape,GIMP,,Bayer88,,Landscape_GIMP_Bayer88
+Landscape,GIMP,Laplace,FloydSteinberg:128,,Landscape_GIMP_Laplace_FloydSteinberg
+Landscape,GIMP,Laplace,Jarvis:128,,Landscape_GIMP_Laplace_Jarvis
+Landscape,GIMP,Laplace,Ostromoukhov:128,,Landscape_GIMP_Laplace_Ostromoukhov
+Landscape,GIMP,Laplace,Bayer44,,Landscape_GIMP_Laplace_Bayer44
+Landscape,GIMP,Laplace,Bayer88,,Landscape_GIMP_Laplace_Bayer88

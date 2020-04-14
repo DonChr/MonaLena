@@ -1,0 +1,11 @@
+input-image,grayconverter,preprocess,halftone,postprocess,output-image
+RadialW2B,GIMP,,FloydSteinberg:128,,RadialW2B_GIMP_FloydSteinberg
+RadialW2B,GIMP,,Jarvis:128,,RadialW2B_GIMP_Jarvis
+RadialW2B,GIMP,,Ostromoukhov:128,,RadialW2B_GIMP_Ostromoukhov
+RadialW2B,GIMP,,Bayer44,,RadialW2B_GIMP_Bayer44
+RadialW2B,GIMP,,Bayer88,,RadialW2B_GIMP_Bayer88
+RadialW2B,GIMP,Laplace,FloydSteinberg:128,,RadialW2B_GIMP_Laplace_FloydSteinberg
+RadialW2B,GIMP,Laplace,Jarvis:128,,RadialW2B_GIMP_Laplace_Jarvis
+RadialW2B,GIMP,Laplace,Ostromoukhov:128,,RadialW2B_GIMP_Laplace_Ostromoukhov
+RadialW2B,GIMP,Laplace,Bayer44,,RadialW2B_GIMP_Laplace_Bayer44
+RadialW2B,GIMP,Laplace,Bayer88,,RadialW2B_GIMP_Laplace_Bayer88

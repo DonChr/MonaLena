@@ -1,0 +1,11 @@
+input-image,grayconverter,preprocess,halftone,postprocess,output-image
+Gibbon,GIMP,,FloydSteinberg:128,,Gibbon_GIMP_FloydSteinberg
+Gibbon,GIMP,,Jarvis:128,,Gibbon_GIMP_Jarvis
+Gibbon,GIMP,,Ostromoukhov:128,,Gibbon_GIMP_Ostromoukhov
+Gibbon,GIMP,,Bayer44,,Gibbon_GIMP_Bayer44
+Gibbon,GIMP,,Bayer88,,Gibbon_GIMP_Bayer88
+Gibbon,GIMP,Laplace,FloydSteinberg:128,,Gibbon_GIMP_Laplace_FloydSteinberg
+Gibbon,GIMP,Laplace,Jarvis:128,,Gibbon_GIMP_Laplace_Jarvis
+Gibbon,GIMP,Laplace,Ostromoukhov:128,,Gibbon_GIMP_Laplace_Ostromoukhov
+Gibbon,GIMP,Laplace,Bayer44,,Gibbon_GIMP_Laplace_Bayer44
+Gibbon,GIMP,Laplace,Bayer88,,Gibbon_GIMP_Laplace_Bayer88
