@@ -1,4 +1,6 @@
 input-image,grayconverter,preprocess,halftone,postprocess,output-image
+Mandrill,GIMP,,,,Mandrill_GIMP
+Mandrill,Helmholtz:1.0,,,,Mandrill_Helmholtz
 Mandrill,GIMP,,FloydSteinberg:128,,Mandrill_GIMP_FloydSteinberg
 Mandrill,GIMP,,Jarvis:128,,Mandrill_GIMP_Jarvis
 Mandrill,GIMP,,Ostromoukhov:128,,Mandrill_GIMP_Ostromoukhov

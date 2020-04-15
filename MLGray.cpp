@@ -303,9 +303,9 @@ bool MLGray::Ostromoukhov(int32_t threshold) {
 		data[lpos] = (v < threshold) ? BLACK : WHITE;
 		int32_t err = v - data[lpos];
 		v*=4;
-		f0 = OstromC[v] / OstromC[v + 3];
-		f1 = OstromC[v+1] / OstromC[v + 3];
-		f2 = OstromC[v + 2] / OstromC[v + 3]; 
+		f0 = (double)OstromC[v] / OstromC[v + 3];
+		f1 = (double)OstromC[v+1] / OstromC[v + 3];
+		f2 = (double)OstromC[v + 2] / OstromC[v + 3];
 		data[lpos + 1] += (int32_t)(err * f0 + 0.5);
 		data[lpos + width] += (int32_t)(err * f2 + 0.5);
 		for (int x = 1; x < width - 1; x++) {
@@ -314,9 +314,9 @@ bool MLGray::Ostromoukhov(int32_t threshold) {
 			data[px] = (v < threshold) ? BLACK : WHITE;
 			int32_t err = v - data[px];
 			v *= 4;
-			f0 = OstromC[v] / OstromC[v + 3];
-			f1 = OstromC[v + 1] / OstromC[v + 3];
-			f2 = OstromC[v + 2] / OstromC[v + 3];
+			f0 = (double)OstromC[v] / OstromC[v + 3];
+			f1 = (double)OstromC[v + 1] / OstromC[v + 3];
+			f2 = (double)OstromC[v + 2] / OstromC[v + 3];
 			data[px + 1] += (int32_t)(err * f0 + 0.5);
 			data[px + width - 1] += (int32_t)(err * f1 + 0.5);
 			data[px + width] += (int32_t)(err * f2 + 0.5);
@@ -326,8 +326,8 @@ bool MLGray::Ostromoukhov(int32_t threshold) {
 		data[px] = (v < threshold) ? BLACK : WHITE;
 		err = v - data[px];
 		v *= 4;
-		f1 = OstromC[v + 1] / OstromC[v + 3];
-		f2 = OstromC[v + 2] / OstromC[v + 3];
+		f1 = (double)OstromC[v + 1] / OstromC[v + 3];
+		f2 = (double)OstromC[v + 2] / OstromC[v + 3];
 		data[px + width - 1] += (int32_t)(err * f1 + 0.5);
 		data[px + width] += (int32_t)(err * f2 + 0.5);
 	}
@@ -338,7 +338,7 @@ bool MLGray::Ostromoukhov(int32_t threshold) {
 		data[px] = (v < threshold) ? BLACK : WHITE;
 		int32_t err = v - data[px];
 		v *= 4;
-		f0 = OstromC[v] / OstromC[v + 3];
+		f0 = (double)OstromC[v] / OstromC[v + 3];
 		data[px + 1] += (int32_t)(err * f0 + 0.5);
 	}
 	return true;

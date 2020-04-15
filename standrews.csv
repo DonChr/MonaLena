@@ -3,12 +3,14 @@ StAndrews,GIMP,,FloydSteinberg:128,,StAndrews_GIMP_FloydSteinberg
 StAndrews,GIMP,,FloydSteinberg:128,SaltPepper:1,StAndrews_GIMP_FloydSteinberg_SaltPepper
 StAndrews,GIMP,,Jarvis:128,,StAndrews_GIMP_Jarvis
 StAndrews,GIMP,,Ostromoukhov:128,,StAndrews_GIMP_Ostromoukhov
+StAndrews,GIMP,,Ostromoukhov:128,SaltPepper:1,StAndrews_GIMP_Ostromoukhov_SaltPepper
 StAndrews,GIMP,,Bayer44,,StAndrews_GIMP_Bayer44
 StAndrews,GIMP,,Bayer88,,StAndrews_GIMP_Bayer88
 StAndrews,GIMP,Laplace,FloydSteinberg:128,,StAndrews_GIMP_Laplace_FloydSteinberg
 StAndrews,GIMP,Laplace,FloydSteinberg:128,SaltPepper:1,StAndrews_GIMP_Laplace_FloydSteinberg_SaltPepper
 StAndrews,GIMP,Laplace,Jarvis:128,,StAndrews_GIMP_Laplace_Jarvis
 StAndrews,GIMP,Laplace,Ostromoukhov:128,,StAndrews_GIMP_Laplace_Ostromoukhov
+StAndrews,GIMP,Laplace,Ostromoukhov:128,SaltPepper:1,StAndrews_GIMP_Laplace_Ostromoukhov_SaltPepper
 StAndrews,GIMP,Laplace,Bayer44,,StAndrews_GIMP_Laplace_Bayer44
 StAndrews,GIMP,Laplace,Bayer88,,StAndrews_GIMP_Laplace_Bayer88
 StAndrews,GIMP,Median,FloydSteinberg:128,,StAndrews_GIMP_Median_FloydSteinberg
