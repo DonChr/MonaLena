@@ -244,6 +244,100 @@ bool MLGray::Jarvis(int32_t threshold) {
 	}
 	return true;
 }
+/*
+      ..X   5   3
+ 2   4  5   4   2
+     2  3   2    (/ 32)
+*/
+bool MLGray::Sierra(int32_t threshold) {
+	if ((height <= 1) || (width <= 1)) { return false; }
+	const double f5 = 5.0 / 32.0;
+	const double f4 = 4.0 / 32.0;
+	const double f3 = 3.0 / 32.0;
+	const double f2 = 2.0 / 48.0;
+	int lpos;
+	int px;
+	for (int y = 0; y < height; y++) {
+		lpos = line(y);
+		for (int x = 0; x < width; x++) {
+			px = lpos + x;
+			int32_t v = data[px];
+			data[px] = (v < threshold) ? BLACK : WHITE;
+			int32_t err = v - data[px];
+			if (x < width - 1) {
+				data[px + 1] += (int32_t)(err * f5 + 0.5);
+				if (y < height - 1) {
+					data[px + width + 1] += (int32_t)(err * f4 + 0.5);
+					if (y < height - 2) {
+						data[px + 2 * width + 1] += (int32_t)(err * f2 + 0.5);
+					}
+				}
+				if (x < width - 2) {
+					data[px + 2] += (int32_t)(err * f3 + 0.5);
+					if (y < height - 1) {
+						data[px + width + 2] += (int32_t)(err * f2 + 0.5);
+					}
+				}
+			}
+			if (y < height - 1) {
+				data[px + width] += (int32_t)(err * f5 + 0.5);
+				if (y < height - 2) { data[px + 2 * width] += (int32_t)(err * f3 + 0.5); }
+			}
+			if (x > 0) {
+				if (y < height - 1) {
+					data[px + width - 1] += (int32_t)(err * f4 + 0.5);
+					if (y < height - 2) { data[px + 2 * width - 1] += (int32_t)(err * f2 + 0.5); }
+				}
+				if (x > 1) {
+					if (y < height - 1) {
+						data[px + width - 2] += (int32_t)(err * f2 + 0.5);
+					}
+				}
+			}
+
+		}
+	}
+	return true;
+}
+
+
+
+bool MLGray::Atkinson(int32_t threshold) {
+	if ((height <= 1) || (width <= 1)) { return false; }
+	const double f1 = 0.125; // 1/8
+	int lpos;
+	int px;
+	for (int y = 0; y < height; y++) {
+		lpos = line(y);
+		for (int x = 0; x < width; x++) {
+			px = lpos + x;
+			int32_t v = data[px];
+			data[px] = (v < threshold) ? BLACK : WHITE;
+			int32_t err = round(f1*(v - data[px]));
+			if (x < width - 1) {
+				data[px + 1] += err;
+				if (y < height - 1) {
+					data[px + width + 1] += err;
+				}
+				if (x < width - 2) {
+					data[px + 2] += err;
+				}
+			}
+			if (y < height - 1) {
+				data[px + width] += err;
+				if (y < height - 2) { data[px + 2 * width] += err; }
+			}
+			if (x > 0) {
+				if (y < height - 1) {
+					data[px + width - 1] += err;
+				}
+			}
+
+		}
+	}
+	return true;
+}
+
 
 
 bool MLGray::FloydSteinberg(int32_t threshold) {
@@ -359,7 +453,44 @@ bool MLGray::LaplaceSharpen(double factor) {
 	return true;
 }
 
-bool MLGray::MedianFilter33() {
+bool MLGray::Med5Laplace(double factor) {
+	if (!MedianFilter5()) { return false; }
+	return LaplaceSharpen(factor);
+}
+
+bool MLGray::Rescale(double offset,double factor) {
+	if ((height <= 0) || (width <= 0)) { return false; }
+
+	for (int y = 1; y < height - 1; y++) {
+		int lpos = line(y);
+		for (int x = 1; x < width - 1; x++) {
+			int px = lpos + x;
+			data[px] = (int32_t)(offset + factor * data[px]+0.5);
+		}
+	}
+	return true;
+}
+
+
+bool MLGray::KnuthEdge(double factor) {
+	if ((height <= 0) || (width <= 0)||(factor<0)||(factor>=1.0)) { return false; }
+	const double denom = 1.0 - factor;
+	MLGray t = MLGray(width, height, data);
+	for (int y = 1; y < height - 1; y++) {
+		int lpos = line(y);
+		for (int x = 1; x < width - 1; x++) {
+			int px = lpos + x;
+			double mx = (double)t.Accumulate33(px) / 9.0;
+			int32_t v = data[px];
+			data[px] = (int32_t)((v-factor*mx)/denom + 0.5);
+		}
+	}
+	return true;
+	;
+}
+
+
+bool MLGray::MedianFilter9() {
 	if ((height <= 0) || (width <= 0)) { return false; }
 
 	MLGray t = MLGray(width, height, data);
@@ -367,11 +498,26 @@ bool MLGray::MedianFilter33() {
 		int lpos = line(y);
 		for (int x = 1; x < width - 1; x++) {
 			int px = lpos + x;
-			data[px] = t.Median33(px);
+			data[px] = t.MedianMsk9(px);
 		}
 	}
 	return true;
 }
+
+bool MLGray::MedianFilter5() {
+	if ((height <= 0) || (width <= 0)) { return false; }
+
+	MLGray t = MLGray(width, height, data);
+	for (int y = 1; y < height - 1; y++) {
+		int lpos = line(y);
+		for (int x = 1; x < width - 1; x++) {
+			int px = lpos + x;
+			data[px] = t.MedianMsk5(px);
+		}
+	}
+	return true;
+}
+
 
 bool MLGray::SaltPepper(int32_t threshold) {
 	if ((height <= 0) || (width <= 0)) { return false; }
@@ -390,9 +536,6 @@ bool MLGray::SaltPepper(int32_t threshold) {
 			else {
 				if (a >= bthreshold) { data[px] = WHITE; }
 			}
-
-
-			data[px] = t.Median33(px);
 		}
 	}
 	return true;
@@ -403,7 +546,6 @@ bool MLGray::SaltPepper(int32_t threshold) {
 bool MLGray::Bayer44() {
 	if ((height <= 0) || (width <= 0)) { return false; }
 
-	MLGray t = MLGray(width, height, data);
 	for (int y = 1; y < height - 1; y++) {
 		int lpos = line(y);
 		int my = (y % 4)*4;
@@ -420,7 +562,6 @@ bool MLGray::Bayer44() {
 bool MLGray::Bayer88() {
 	if ((height <= 0) || (width <= 0)) { return false; }
 
-	MLGray t = MLGray(width, height, data);
 	for (int y = 1; y < height - 1; y++) {
 		int lpos = line(y);
 		int my = (y % 8) * 8;
@@ -439,8 +580,6 @@ bool MLGray::BayerRnd88(int32_t range) {
 	std::mt19937 rnd(47114713); // seed the generator
 	std::uniform_int_distribution<> unif(-range,range); // define the range
 
-
-	MLGray t = MLGray(width, height, data);
 	for (int y = 1; y < height - 1; y++) {
 		int lpos = line(y);
 		int my = (y % 8) * 8;
@@ -453,6 +592,40 @@ bool MLGray::BayerRnd88(int32_t range) {
 	}
 	return true;
 }
+
+bool MLGray::Threshold(int32_t threshold) {
+	if ((height <= 0) || (width <= 0)) { return false; }
+	for (int y = 1; y < height - 1; y++) {
+		int lpos = line(y);
+		int my = (y % 8) * 8;
+		for (int x = 1; x < width - 1; x++) {
+			int px = lpos + x;
+			int32_t v = data[px];
+			data[px] = (v >= threshold) ? WHITE : BLACK;
+		}
+	}
+	return true;
+
+}
+
+bool MLGray::Random() {
+	if ((height <= 0) || (width <= 0)) { return false; }
+	std::mt19937 rnd(47114713); // seed the generator
+	std::uniform_int_distribution<> unif(BLACK,WHITE); 
+
+
+	for (int y = 1; y < height - 1; y++) {
+		int lpos = line(y);
+		for (int x = 1; x < width - 1; x++) {
+			int px = lpos + x;
+			int32_t r = unif(rnd);
+			int32_t v = data[px];
+			data[px] = (v >= r) ? WHITE : BLACK;
+		}
+	}
+	return true;
+}
+
 
 
 

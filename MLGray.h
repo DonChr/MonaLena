@@ -165,39 +165,95 @@ public:
     */
     bool LaplaceSharpen(double factor=-1.0);
     /**
-    <summary> Filters the image with the median of the 3x3 neighbours</summary>
+    <summary> Applies first a MedianFilter5() and calls then LaplaceSharpen(). The idea is to remove first
+       salt and pepper and then call Laplace to enhance edges.
+       This is a preprocessing method.
+       </summary>
+     <param name="factor"> The Laplace-filter is scaled by this value. Default -1.0</param>
     <returns>true if operation successfull, false if failed (empty image).</returns>
     */
-    bool MedianFilter33();
+    bool Med5Laplace(double factor = -1.0);
+    /**
+    <summary> Filters the image with the median of the mask 
+     1 1 1
+     1 x 1
+     1 1 1
+    </summary>
+    <returns>true if operation successfull, false if failed (empty image).</returns>
+    */
+    bool MedianFilter9();
+    /**
+    <summary> Filters the image with the median of the mask
+      .  1  .
+      1  x  1
+      .  1  .
+    </summary>
+    <returns>true if operation successfull, false if failed (empty image).</returns>
+    */
+    bool MedianFilter5();
     /**
     <summary> Calcuates a Laplace-filter for the image. This can be used for edge detection. But is has no direct
        use for halftoning.
-    </offsetsummary>
+    </summary>
      <param name="offset">The value of the filter is added to this offset. The filter values can be negative. Default: 128</param>
     <returns>true if operation successfull, false if failed (empty image).</returns>
     */
     bool LaplaceFilter(int offset=128);
     /**
-    <summary>Implements the Floyd-Steinberg error diffusion halftoning algorithm. </summary>
-    <param name="threshold">The pixel is set to WHITE if the Gr>=128. I lower threshold results in a brighter image</param>
+    <summary> Rescales the image. Gr=offset+factor*Gray. The method can be used for preprocessing </summary>
+    <param name="offset">See the linear equation above. Default 26</param>
+    <param name="factor">See the linear equation above. Default 0.8</param>
     <returns>true if operation successfull, false if failed (empty image).</returns>
     */
-	bool FloydSteinberg(int32_t threshold = 128);
+    bool Rescale(double offset = 25.5, double factor = 0.8);
+    /**
+    <summary> Enhences edges by the method proposed in D.Knuth: Digital Halftones by Dot Diffusion
+       Gr=(Gr-factor*meanGr)/(1-factor). meanGr is the mean value in a 3x3 mask </summary>
+    <note> The factor 0.9 is equivalent to the Laplace filter.</note>
+    <param name="factor">See the equation above. Default 0.8. factor must be within [0,1.0) </param>
+      <returns>true if operation successfull, false if image is empty or factor not in range.</returns>
+    */
+    bool KnuthEdge(double factor = 0.8);
+    /**
+    <summary>Implements the Floyd-Steinberg error diffusion halftoning algorithm. </summary>
+    <param name="threshold">The pixel is set to WHITE if the Gr>=threshold. A lower threshold results in a brighter image</param>
+    <returns>true if operation successfull, false if failed (empty image).</returns>
+    */
+ 	bool FloydSteinberg(int32_t threshold = 128);
     /**
     <summary>Implements "minimized average error" halftoning algorithm by J.Jarvis, C.Judice and W. Ninke
       The algorithm is similar to Floyd-Steinberg. The diffusion mask is larger. </summary>
-    <param name="threshold">The pixel is set to WHITE if the Gr>=128. I lower threshold results in a brighter image</param>
+    <param name="threshold">The pixel is set to WHITE if the Gr>=threshold. A lower threshold results in a brighter image</param>
     <returns>true if operation successfull, false if failed (empty image).</returns>
     */
 	bool Jarvis(int32_t threshold = 128);
     /**
+    <summary>Implements the "reduced color blend" from Bill Atkinson. The error/8 is distributed equally to 6 pixels. 
+        It tampens the error propagation by 0.25.
+        .  .  x  1  1
+           1  1  1
+              1     (/8) 
+    </summary>
+    <param name="threshold">The pixel is set to WHITE if the Gr>=threshold. A lower threshold results in a brighter image</param>
+    <returns>true if operation successfull, false if failed (empty image).</returns>
+    */
+    bool Atkinson(int32_t threshold = 128);
+    /**
+    <summary> Implements Error-Diffusion from Frankie Sierra. With the following diffusion mask  
+        .   .  X   5   3
+        2   4  5   4   2
+            2  3   2    (/32)   
+    </summary>
+    <param name="threshold">The pixel is set to WHITE if the Gr>=threshold. A lower threshold results in a brighter image</param>
+    <returns>true if operation successfull, false if failed (empty image).</returns>
+    */
+    bool Sierra(int32_t threshold = 128);
+
+    /**
     <summary>Implements the halftoning algorithm from:  Victor Ostromoukhov: "A Simple and Efficient Error-Diffusion Algorithm"
      The algorithm uses for each grayscale an own error-diffusion matrix. The Matrix was optimized to eliminate noise.
-     The algorihm does not create like FloydSteinberg() and Jarvis() artificial noise of the background (e.g. sky).
-     But it removes also finer details of the image. The result can look like trivial threshold.
-     One way to overcome this problem is to call LaplaceSharpen() as a preprocessing step.
      </summary>
-    <param name="threshold">The pixel is set to WHITE if the Gr>=128. I lower threshold results in a brighter image</param>
+    <param name="threshold">The pixel is set to WHITE if the Gr>=threshold. A lower threshold results in a brighter image</param>
     <returns>true if operation successfull, false if failed (empty image).</returns>
     */
     bool Ostromoukhov(int32_t threshold = 128);
@@ -212,8 +268,25 @@ public:
     */
     bool Bayer88();
     /**
+     <summary>Implements ordered Dither with a 8x8 Bayer matrix. Before accessing the Bayer-Matrix
+     a uniform distributed random number from [-range,range] is added to the pixel value. This should
+     break the regular pattern created by the Bayer Matrix
+     </summary>
+    <param name="range">The uniform distribution is created in [-range,range]. Default: 20</param>
+    <returns>true if operation successfull, false if failed (empty image).</returns>
     */
-    bool BayerRnd88(int32_t range=32);
+    bool BayerRnd88(int32_t range=20);
+    /**
+    <summary> Trivial Dither. If Pixel value >=threshold, WHITE, below BLACK. </summary>
+    <param name="threshold">The pixel is set to WHITE if the Gr>=threshold. I lower threshold results in a brighter image</param>
+    <returns>true if operation successfull, false if failed (empty image).</returns>
+    */
+    bool Threshold(int32_t threshold = 128);
+    /**
+    <summary> Creates for each pixe a random integer in [0,255]. if Gr >= Rand Dither is WHITE, otherwise BLACK. </summary>
+    <returns>true if operation successfull, false if failed (empty image).</returns>
+  */
+    bool Random();
 
     /**
     <summary> Postprocessing of image. Removes Salt and Pepper. Flips Pixel if there are too less
@@ -266,11 +339,16 @@ private:
 	inline int line(int y) { return y * width; }
 	inline int clamp(int c) { return (c < 0) ? BLACK : (c <= WHITE) ? c : WHITE; }
 
-    inline int32_t Median33(int x) {
+    inline int32_t MedianMsk9(int x) {
         return Median9(data[x - width - 1], data[x - width], data[x - width + 1],
             data[x - 1], data[x], data[x + 1],
             data[x + width - 1], data[x + width], data[x + width + 1]);
     }
+
+    inline int32_t MedianMsk5(int x) {
+        return Median5(data[x - width],data[x - 1], data[x], data[x + 1],data[x + width]);
+    }
+
 
     inline int32_t Accumulate33(int x) {
         int32_t v = data[x - width - 1] + data[x - width] + data[x - width + 1]+

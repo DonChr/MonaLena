@@ -52,6 +52,28 @@ bool Param3(string cmd, double& v1,double& v2,double &v3) {
 	}
 }
 
+bool Param2(string cmd, double& v1, double& v2) {
+	int p = cmd.find(':');
+	if (p < 0) { return false; }
+	try {
+		istringstream s(cmd.substr(p + 1));
+		string ps;
+		for (int n = 1; (n <= 2) && (getline(s, ps, ':')); n++) {
+			if (n == 1) { v1 = stod(ps); }
+			if (n == 2) { 
+				v2 = stod(ps); 
+				return true;
+			}
+		}
+		return false;
+	}
+	catch (invalid_argument e) {
+		cout << "Param2 stod exception" << endl;
+		return false;
+	}
+}
+
+
 
 bool ConvertToGray(string fileName, string op, MLGray& img) {
 	if (op.empty()) { return false; }
@@ -80,7 +102,7 @@ bool ConvertToGray(string fileName, string op, MLGray& img) {
 		cout << "Param3 failed" << endl;
 		return false;
 	}
-
+	cout << "Unknown Grayconverter operation " << op << endl;
 	return false;
 }
 
@@ -92,13 +114,27 @@ bool Preprocess(string op, MLGray& img) {
 		if (Param(op, p1)) { return img.LaplaceSharpen(p1); }
 		return img.LaplaceSharpen();
 	}
+	if (op.find("Edge") == 0) {
+		if (Param(op, p1)) { return img.KnuthEdge(p1); }
+		return img.KnuthEdge();
+	}
+	if (op.find("MedLaplace") == 0) {
+		if (Param(op, p1)) { return img.Med5Laplace(p1); }
+		return img.Med5Laplace();
+	}
 	if (op.find("Logistic") == 0) {
 		if (Param(op, p1)) { return img.Logistic(p1); }
 		return img.Logistic();
 	}
-	if (op.find("Median") == 0) {
-		return img.MedianFilter33();
+	if (op.find("Rescale") == 0) {
+		double p2;
+		if (Param2(op, p1,p2)) { return img.Rescale(p1,p2); }
+		return img.Rescale();
 	}
+	if (op.find("Median") == 0) {
+		return img.MedianFilter9();
+	}
+	cout << "WARNING: Unknown Preprocessing operation " << op << endl;
 	return false;
 }
 
@@ -106,6 +142,10 @@ bool Halftoning(string op, MLGray& img) {
 	if (op.empty()) { return false; }
 	op.erase(remove(op.begin(), op.end(), ' '), op.end());
 	int p1;
+	if (op.find("Atkinson") == 0) {
+		if (Param(op, p1)) { return img.Atkinson(p1); }
+		return img.Atkinson();
+	}
 	if (op.find("FloydSteinberg") == 0) {
 		if (Param(op, p1)) { return img.FloydSteinberg(p1); }
 		return img.FloydSteinberg();
@@ -118,6 +158,11 @@ bool Halftoning(string op, MLGray& img) {
 		if (Param(op, p1)) { return img.Ostromoukhov(p1); }
 		return img.Ostromoukhov();
 	}
+	if (op.find("Sierra") == 0) {
+		if (Param(op, p1)) { return img.Sierra(p1); }
+		return img.Sierra();
+	}
+
 	if (op.find("Bayer44") == 0) {
 		return img.Bayer44();
 	}
@@ -128,6 +173,14 @@ bool Halftoning(string op, MLGray& img) {
 		if (Param(op, p1)) { return img.BayerRnd88(p1); }
 		return img.BayerRnd88();
 	}
+	if (op.find("Random") == 0) {
+		return img.Random();
+	}
+	if (op.find("Threshold") == 0) {
+		if (Param(op, p1)) { return img.Threshold(p1); }
+		return img.Threshold();
+	}
+	cout << "WARNING: Unknown Halftoning operation " << op << endl;
 	return false;
 }
 
@@ -139,7 +192,8 @@ bool Postprocess(string op, MLGray& img) {
 		if (Param(op, p1)) { return img.SaltPepper(p1); }
 		return img.SaltPepper();
 	}
-	return false; // Postprocessing TBD
+	cout << "WARNING: Unknown Postprocessing operation " << op << endl;
+	return false; 
 }
 
 
