@@ -243,12 +243,29 @@ public:
     */
  	bool FloydSteinberg(int32_t threshold = 128);
     /**
+        <summary> Selects the optimal threshold for FloydSteinberg Halftonig. Best is defined as the L2-distance between
+        the Gauss-Filter of the original image and the Gauss-Filter of the Halftone</summary>
+        <param name="from">The threshold search is done within range [from,to]. Default: 64</param>
+        <param name="from">The threshold search is done within range [from,to]. Default: 192</param>
+        <returns>the best threshold or -1 if operation failed.</returns>
+    */
+    int OptFloydSteinberg(int from = 64, int to = 192);
+
+    /**
     <summary>Implements "minimized average error" halftoning algorithm by J.Jarvis, C.Judice and W. Ninke
       The algorithm is similar to Floyd-Steinberg. The diffusion mask is larger. </summary>
     <param name="threshold">The pixel is set to WHITE if the Gr>=threshold. A lower threshold results in a brighter image</param>
     <returns>true if operation successfull, false if failed (empty image).</returns>
     */
 	bool Jarvis(int32_t threshold = 128);
+    /**
+    <summary> Selects the optimal threshold for Jarvis Halftonig. Best is defined as the L2-distance between
+    the Gauss-Filter of the original image and the Gauss-Filter of the Halftone</summary>
+    <param name="from">The threshold search is done within range [from,to]. Default: 64</param>
+    <param name="from">The threshold search is done within range [from,to]. Default: 192</param>
+    <returns>the best threshold or -1 if operation failed.</returns>
+    */
+    int OptJarvis(int from = 64, int to = 192);
     /**
     <summary>Implements the "reduced color blend" from Bill Atkinson. The error/8 is distributed equally to 6 pixels. 
         It tampens the error propagation by 0.25.
@@ -261,6 +278,15 @@ public:
     */
     bool Atkinson(int32_t threshold = 128);
     /**
+    <summary> Selects the optimal threshold for Ostromoukov Halftonig.Best is defined as the L2 - distance between
+        the Gauss - Filter of the original image and the Gauss - Filter of the Halftone< / summary>
+        <param name = "from">The threshold search is done within range[from, to].Default: 64 < / param >
+        <param name = "from">The threshold search is done within range[from, to].Default : 192 < / param >
+        <returns>true if operation successfull, false if failed(empty image).< / returns>
+        <returns>the best threshold or -1 if operation failed.< / returns>
+    */
+    int OptAtkinson(int from = 64, int to = 192);
+    /**
     <summary> Implements Error-Diffusion from Frankie Sierra. With the following diffusion mask  
         .   .  X   5   3
         2   4  5   4   2
@@ -270,6 +296,14 @@ public:
     <returns>true if operation successfull, false if failed (empty image).</returns>
     */
     bool Sierra(int32_t threshold = 128);
+    /**
+    <summary> Selects the optimal threshold for Sierra Halftonig. Best is defined as the L2-distance between
+    the Gauss-Filter of the original image and the Gauss-Filter of the Halftone</summary>
+    <param name="from">The threshold search is done within range [from,to]. Default: 64</param>
+    <param name="from">The threshold search is done within range [from,to]. Default: 192</param>
+    <returns>the best threshold or -1 if operation failed.</returns>
+    */
+    int OptSierra(int from = 64, int to = 192);
 
     /**
     <summary> Implements the halftoning algorithm from:  Victor Ostromoukhov: "A Simple and Efficient Error-Diffusion Algorithm"
@@ -280,11 +314,14 @@ public:
     */
     bool Ostromoukhov(int32_t threshold = 128);
     /**
-    <summary> Selects the optimal threshold for Ostromoukov Halftonig. Best is defined as the L1-distance between
+    <summary> Selects the optimal threshold for Ostromoukov Halftonig. Best is defined as the L2-distance between
     the Gauss-Filter of the original image and the Gauss-Filter of the Halftone</summary>
+    <param name="from">The threshold search is done within range [from,to]. Default: 64</param>
+    <param name="from">The threshold search is done within range [from,to]. Default: 192</param>
     <returns>true if operation successfull, false if failed (empty image).</returns>
+    <returns>the best threshold or -1 if operation failed.</returns>
     */
-    bool OptOstromouhkov();
+    int OptOstromoukhov(int from=64,int to=192);
     /**
     <summary>Implements ordered Dither with a 4x4 Bayer matrix</summary>
     <returns>true if operation successfull, false if failed (empty image).</returns>
@@ -315,6 +352,8 @@ public:
     <returns>true if operation successfull, false if failed (empty image).</returns>
   */
     bool Random();
+    /**
+    */
 
     /**
     <summary> Postprocessing of image. Removes Salt and Pepper. Flips Pixel if there are too less
