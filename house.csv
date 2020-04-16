@@ -1,0 +1,8 @@
+#input-image,grayconverter,preprocess,halftone,postprocess,output-image
+House,GIMP,MedLaplace,,,House_GIMP_ML
+House,GIMP,,,,House_GIMP
+House,GIMP,MedLaplace,Ostromoukhov,,House_GIMP_ML_Ostrm
+House,GIMP,MedLaplace,Ostromoukhov,Gauss5,House_GIMP_ML_Ostrm_GA5
+House,GIMP,MedLaplace,,Gauss5,House_GIMP_ML_GA
+House,GIMP,MedLaplace,Ostromoukhov,Gauss7,House_GIMP_ML_Ostrm_GA7
+House,GIMP,MedLaplace,,Gauss7,House_GIMP_ML_GA7

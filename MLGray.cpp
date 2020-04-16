@@ -37,9 +37,7 @@ MLGray::MLGray(int w,int h,int32_t *srcdata) {
 	height = h;
 	int sz = width * height;
 	data = new int32_t[sz];
-	for (int i = 0; i < sz; i++) {
-		data[i] = srcdata[i];
-	}
+	memcpy(data, srcdata, sz * sizeof(int32_t));
 }
 
 MLGray::~MLGray() {
@@ -67,24 +65,52 @@ bool MLGray::CreateImage(int w, int h) {
 	return true;
 }
 
+bool MLGray::ColorChannel(const string fileName, int color) {
+	if ((color < RED) || (color > BLUE)) { return false; }
+	int ch, w, h;
+	unsigned char* d = LoadImage(fileName, w, h, ch);
+	if (d == nullptr) { return false; }
+	CreateImage(w, h);
+	if (ch == 1) { 
+		CopyData(d); 
+	}
+	else {
+		for (int y = 0; y < height; y++) {
+			int lpos = line(y);
+			int lpStb = lpos * ch;
+			for (int x = 0; x < width; x++) {
+				int px = lpos + x;
+				int pxStb = lpStb + x * ch;
+				data[px] = (int32_t)d[pxStb + color];
+			}
+		}
+	}
+	stbi_image_free(d);
+	return true;
+}
+
 
 bool MLGray::Saturate(string fileName, double wRed, double wGreen, double wBlue) {
 	int ch,w,h;
 	unsigned char* d = LoadImage(fileName, w, h, ch);
 	if (d == nullptr) { return false; }
 	CreateImage(w, h);
-	if (ch == 1) { return CopyData(d); }
-	int32_t r, g, b;
-	for (int y = 0; y < height; y++) {
-		int lpos = line(y);
-		int lpStb = lpos * ch;
-		for (int x = 0; x < width; x++) {
-			int px = lpos + x;
-			int pxStb = lpStb + x * ch;
-			r = d[pxStb];
-			g = d[pxStb + 1];
-			b = d[pxStb + 2];
-			data[px] = (int32_t)(wRed * r + wGreen * g + wBlue * b + 0.5); // Last Term is Rounding
+	if (ch == 1) { 
+		CopyData(d); 
+	}
+	else {
+		int32_t r, g, b;
+		for (int y = 0; y < height; y++) {
+			int lpos = line(y);
+			int lpStb = lpos * ch;
+			for (int x = 0; x < width; x++) {
+				int px = lpos + x;
+				int pxStb = lpStb + x * ch;
+				r = d[pxStb];
+				g = d[pxStb + 1];
+				b = d[pxStb + 2];
+				data[px] = (int32_t)(wRed * r + wGreen * g + wBlue * b + 0.5); // Last Term is Rounding
+			}
 		}
 	}
 	stbi_image_free(d);
@@ -104,25 +130,30 @@ bool MLGray::Desaturate(const string fileName) {
 	unsigned char* d = LoadImage(fileName, width, height, ch);
 	if (d == nullptr) { return false; }
 	data = new int32_t[width * height];
-	if (ch == 1) { return CopyData(d); }
-	int32_t g, b;
-	for (int y = 0; y < height; y++) {
-		int lpos = line(y);
-		int lpStb = lpos * ch;
-		for (int x = 0; x < width; x++) {
-			int px = lpos + x;
-			int pxStb = lpStb + x * ch;
-			int32_t maxI = d[pxStb];
-			int32_t minI = maxI;
-			g = d[pxStb + 1];
-			b = d[pxStb + 2];
-			maxI = (g > maxI) ? g : maxI;
-			minI = (g < minI) ? g : minI;
-			maxI = (b > maxI) ? b : maxI;
-			minI = (b < minI) ? b : minI;
-			data[px] = (int32_t)((maxI + minI) * 0.5 + 0.5); // Last Term is Rounding
+	if (ch == 1) { 
+		CopyData(d); 
+	}
+	else {
+		int32_t g, b;
+		for (int y = 0; y < height; y++) {
+			int lpos = line(y);
+			int lpStb = lpos * ch;
+			for (int x = 0; x < width; x++) {
+				int px = lpos + x;
+				int pxStb = lpStb + x * ch;
+				int32_t maxI = d[pxStb];
+				int32_t minI = maxI;
+				g = d[pxStb + 1];
+				b = d[pxStb + 2];
+				maxI = (g > maxI) ? g : maxI;
+				minI = (g < minI) ? g : minI;
+				maxI = (b > maxI) ? b : maxI;
+				minI = (b < minI) ? b : minI;
+				data[px] = (int32_t)((maxI + minI) * 0.5 + 0.5); // Last Term is Rounding
+			}
 		}
 	}
+	stbi_image_free(d);
 	return true;
 }
 
@@ -131,22 +162,27 @@ bool MLGray::Value(const string fileName) {
 	unsigned char* d = LoadImage(fileName, width, height, ch);
 	if (d == nullptr) { return false; }
 	data = new int32_t[width * height];
-	if (ch == 1) { return CopyData(d); }
-	int32_t g, b;
-	for (int y = 0; y < height; y++) {
-		int lpos = line(y);
-		int lpStb = lpos * ch;
-		for (int x = 0; x < width; x++) {
-			int px = lpos + x;
-			int pxStb = lpStb + x * ch;
-			int32_t maxI = d[pxStb];
-			g = d[pxStb + 1];
-			b = d[pxStb + 2];
-			maxI = (g > maxI) ? g : maxI;
-			maxI = (b > maxI) ? b : maxI;
-			data[px] = maxI; 
+	if (ch == 1) { 
+		CopyData(d); 
+	}
+	else {
+		int32_t g, b;
+		for (int y = 0; y < height; y++) {
+			int lpos = line(y);
+			int lpStb = lpos * ch;
+			for (int x = 0; x < width; x++) {
+				int px = lpos + x;
+				int pxStb = lpStb + x * ch;
+				int32_t maxI = d[pxStb];
+				g = d[pxStb + 1];
+				b = d[pxStb + 2];
+				maxI = (g > maxI) ? g : maxI;
+				maxI = (b > maxI) ? b : maxI;
+				data[px] = maxI;
+			}
 		}
 	}
+	stbi_image_free(d);
 	return true;
 }
 
@@ -155,23 +191,28 @@ bool MLGray::Helmholtz(const string fileName,double factor) {
 	unsigned char* d = LoadImage(fileName, width, height, ch);
 	if (d == nullptr) { return false; }
 	data = new int32_t[width * height];
-	if (ch == 1) { return CopyData(d); }
-	int32_t R, G, B;
-	for (int y = 0; y < height; y++) {
-		int lpos = line(y);
-		int lpStb = lpos * ch;
-		for (int x = 0; x < width; x++) {
-			int px = lpos + x;
-			int pxStb = lpStb + x * ch;
-			R = d[pxStb];
-			G = d[pxStb + 1];
-			B = d[pxStb + 2];
-			double Y = (0.299 * R) + (0.587 * G) + (0.114 * B);
-			double U = (B - Y) * 0.493;
-			double V = (R - Y) * 0.877;
-			data[px] = (int32_t)(int32_t)(Y + factor * (U + V) + 0.5); // Last Term is Rounding
+	if (ch == 1) { 
+		CopyData(d); 
+	}
+	else {
+		int32_t R, G, B;
+		for (int y = 0; y < height; y++) {
+			int lpos = line(y);
+			int lpStb = lpos * ch;
+			for (int x = 0; x < width; x++) {
+				int px = lpos + x;
+				int pxStb = lpStb + x * ch;
+				R = d[pxStb];
+				G = d[pxStb + 1];
+				B = d[pxStb + 2];
+				double Y = (0.299 * R) + (0.587 * G) + (0.114 * B);
+				double U = (B - Y) * 0.493;
+				double V = (R - Y) * 0.877;
+				data[px] = (int32_t)(int32_t)(Y + factor * (U + V) + 0.5); // Last Term is Rounding
+			}
 		}
 	}
+	stbi_image_free(d);
 	return true;
 }
 
@@ -244,11 +285,7 @@ bool MLGray::Jarvis(int32_t threshold) {
 	}
 	return true;
 }
-/*
-      ..X   5   3
- 2   4  5   4   2
-     2  3   2    (/ 32)
-*/
+
 bool MLGray::Sierra(int32_t threshold) {
 	if ((height <= 1) || (width <= 1)) { return false; }
 	const double f5 = 5.0 / 32.0;
@@ -384,6 +421,11 @@ bool MLGray::FloydSteinberg(int32_t threshold) {
 	return true;
 }
 
+bool MLGray::OptOstromouhkov() {
+	return true;
+}
+
+
 bool MLGray::Ostromoukhov(int32_t threshold) {
 	if ((height <= 1) || (width <= 1)) { return false; }
 	int lpos;
@@ -453,6 +495,121 @@ bool MLGray::LaplaceSharpen(double factor) {
 	return true;
 }
 
+bool MLGray::Gauss55Filter() {
+	if ((height <= 0) || (width <= 0)) { return false; }
+
+	int sz = width * height;
+	int32_t* td = new int32_t[sz];
+	memcpy(td, data, sz * sizeof(int32_t));
+	for (int y = 0; y < height; y++) {
+		int lpos = line(y);
+		int px = lpos;
+		data[px] = 11 * td[px] + 4 * td[px + 1] + td[px + 2];
+		px += 1;
+		data[px] = 5 * td[px - 1] + 6 * td[px] + 4 * td[px + 1] + td[px + 2];
+		px = lpos + width - 2;
+		data[px] = td[px - 2] + 4 * td[px - 1] + 6 * td[px] + 5 * td[px + 1];
+		px++;
+		data[px] = td[px - 2] + 4 * td[px - 1] + 11 * td[px];
+
+		for (int x = 2; x < width - 2; x++) {
+			px = lpos + x;
+			data[px] += td[px - 2] + 4 * td[px - 1] + 6 * td[px] + 4 * td[px + 1] + td[px + 2];
+		}
+	}
+	memcpy(td, data, sz * sizeof(int32_t));
+	int w1 = width;
+	int w2 = w1+ width;
+	int w_1 = -width;
+	int w_2 = w_1 - width;
+	for (int x = 0; x < width; x++) {
+		int py = x;
+		data[py] = 11 * td[py] + 4 * td[py + w1] + td[py + w2];
+		data[py] /= 256;
+		py += width;
+		data[py] = 5 * td[py + w_1] + 6 * td[py] + 4 * td[py + w1] + td[py + w2];
+		data[py] /= 256;
+		py = x + width * (height - 2);
+		data[py] = td[py + w_2] + 4 * td[py + w_1] + 6 * td[py] + 5 * td[py + w1];
+		data[py] /= 256;
+		py += width;
+		data[py] = td[py + w_2] + 4 * td[py + w_1] + 11 * td[py];
+		for (int y = 2; y < height - 2; y++) {
+			py = x + y * width;
+			data[py] = td[py + w_2] + 4 * td[py + w_1] + 6 * td[py] + 4 * td[py + w1] + td[py + w2];
+			data[py] /= 256;
+		}
+	}
+	delete[] td;
+	return true;
+}
+
+bool MLGray::Gauss77Filter() {
+	if ((height <= 0) || (width <= 0)) { return false; }
+
+	int sz = width * height;
+	int32_t* td = new int32_t[sz];
+	memcpy(td, data, sz * sizeof(int32_t));
+	for (int y = 0; y < height; y++) {
+		int lpos = line(y);
+		int px = lpos;
+		data[px] = 42 * td[px] + 15 * td[px + 1] + 6*td[px + 2]+td[px+3];
+		px += 1;
+		data[px] = 22 * td[px - 1] + 20 * td[px] + 15 * td[px + 1] + 6*td[px + 2]+ td[px + 3];
+		px += 1;
+		data[px] = 7*td[px-2]+15 * td[px - 1] + 20 * td[px] + 15 * td[px + 1] + 6 * td[px + 2] + td[px + 3];
+		px = lpos + width - 3;
+		data[px] = td[px-3]+6*td[px - 2] + 15 * td[px - 1] + 20 * td[px] + 15 * td[px + 1]+ 7 * td[px + 2];
+		px++;
+		data[px] = td[px - 3] + 6 * td[px - 2] + 15 * td[px - 1] + 20 * td[px] + 22 * td[px + 1];
+		px++;
+		data[px] = td[px - 3] + 6 * td[px - 2] + 15 * td[px - 1] + 42 * td[px];
+
+		for (int x = 3; x < width - 3; x++) {
+			px = lpos + x;
+			data[px] += td[px-3]+6*td[px - 2] + 15 * td[px - 1] + 20 * td[px] + 15 * td[px + 1] + 6*td[px + 2]+td[px+3];
+		}
+	}
+	memcpy(td, data, sz * sizeof(int32_t));
+	int w1 = width;
+	int w2 = w1 + width;
+	int w3 = w2 + width;
+	int w_1 = -width;
+	int w_2 = w_1 - width;
+	int w_3 = w_2 - width;
+	for (int x = 0; x < width; x++) {
+		int py = x;
+		data[py] = 42 * td[py] + 15 * td[py + w1] + 6*td[py + w2]+td[py+w3];
+		data[py] /= 4096;
+		py += width;
+		data[py] = 22 * td[py + w_1] + 20 * td[py] + 15 * td[py + w1] + 6*td[py + w2]+td[py+w3];
+		data[py] /= 4096;
+		py += width;
+		data[py] = 7 * td[py + w_2]+15 * td[py + w_1] + 20 * td[py] + 15 * td[py + w1] + 6 * td[py + w2] + td[py + w3];
+		data[py] /= 4096;
+
+		py = x + width * (height - 3);
+		data[py] = td[py + w_3] + 6*td[py + w_2] + 15 * td[py + w_1] + 20 * td[py] + 15 * td[py + w1]+7 * td[py + w1];
+		data[py] /= 4096;
+		py += width;
+		data[py] = td[py + w_3] + 6 * td[py + w_2] + 15 * td[py + w_1] + 20 * td[py] + 22 * td[py + w1];
+		data[py] /= 4096;
+		py += width;
+		data[py] = td[py + w_3] + 6 * td[py + w_2] + 15 * td[py + w_1] + 42 * td[py];
+		data[py] /= 4096;
+
+		for (int y = 3; y < height - 3; y++) {
+			py = x + y * width;
+			data[py] = td[py + w_3] + 6 * td[py + w_2] + 15 * td[py + w_1] + 20 * td[py] + 15 * td[py + w1] + 6 * td[py + w2] + td[py + w3];
+			data[py] /= 4096;
+		}
+	}
+	delete[] td;
+	return true;
+}
+
+
+
 bool MLGray::Med5Laplace(double factor) {
 	if (!MedianFilter5()) { return false; }
 	return LaplaceSharpen(factor);
@@ -508,6 +665,7 @@ bool MLGray::MedianFilter5() {
 	if ((height <= 0) || (width <= 0)) { return false; }
 
 	MLGray t = MLGray(width, height, data);
+
 	for (int y = 1; y < height - 1; y++) {
 		int lpos = line(y);
 		for (int x = 1; x < width - 1; x++) {
@@ -529,7 +687,7 @@ bool MLGray::SaltPepper(int32_t threshold) {
 		for (int x = 1; x < width - 1; x++) {
 			int px = lpos + x;
 			int v = data[px];
-			int a = Accumulate33(px);
+			int a = t.Accumulate33(px);
 			if (v == WHITE) {
 				if (a <= wthreshold) { data [px]= BLACK; }
 			}
@@ -540,7 +698,6 @@ bool MLGray::SaltPepper(int32_t threshold) {
 	}
 	return true;
 }
-
 
 
 bool MLGray::Bayer44() {

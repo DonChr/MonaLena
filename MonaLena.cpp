@@ -79,6 +79,10 @@ bool ConvertToGray(string fileName, string op, MLGray& img) {
 	if (op.empty()) { return false; }
 	op.erase(remove(op.begin(),op.end(), ' '), op.end());
 	double p1,p2,p3;
+	if (op.find("ColorChannel") == 0) {
+		if (Param(op, p1)) { cout << "param =" << p1 << endl; return img.ColorChannel(fileName, p1); }
+		return img.ColorChannel(fileName);
+	}
 	if (op.find("GIMP") == 0) {
 		if (Param(op, p1)) { cout << "param =" << p1 << endl; return img.SaturateGIMP(fileName, p1); }
 		return img.SaturateGIMP(fileName); 
@@ -110,6 +114,12 @@ bool Preprocess(string op, MLGray& img) {
 	if (op.empty()) { return false; }
 	op.erase(remove(op.begin(),op.end(), ' '),op.end());
 	double p1;
+	if (op.find("Gauss5") == 0) {
+		return img.Gauss55Filter();
+	}
+	if (op.find("Gauss7") == 0) {
+		return img.Gauss77Filter();
+	}
 	if (op.find("Laplace") == 0) {
 		if (Param(op, p1)) { return img.LaplaceSharpen(p1); }
 		return img.LaplaceSharpen();
@@ -192,6 +202,12 @@ bool Postprocess(string op, MLGray& img) {
 		if (Param(op, p1)) { return img.SaltPepper(p1); }
 		return img.SaltPepper();
 	}
+	if (op.find("Gauss5") == 0) {
+		return img.Gauss55Filter();
+	}
+	if (op.find("Gauss7") == 0) {
+		return img.Gauss77Filter();
+	}
 	cout << "WARNING: Unknown Postprocessing operation " << op << endl;
 	return false; 
 }
@@ -219,21 +235,22 @@ int main(int argc, char* argv[])
 		for (int lineNr = 1;getline(myfile, line);lineNr++)
 		{
 
-			if ((lineNr==1)||(line.empty())) { continue; }
+			if (line.empty()) { continue; }
+			if (line[0] == '#') { continue; } // Comment Line
 			cout << line << endl;
 			istringstream s(line);
 			string field;
 			for (int n = 0;(n<=5)&&(getline(s, field, ','));n++) {
 				if(n==0) {
 					if(field.empty()) { 
-						cout << "Missing input FileName" << endl;
+						cout << "Line "<<lineNr<<": Missing input FileName" << endl;
 						break;
 					}
 					fileName="./image/"+field+".jpg"; 
 				}
 				if (n == 1) {
 					if (!ConvertToGray(fileName, field, img)) {
-						cout << "Can not convert " << fileName << "with " << field << endl;
+						cout << "Line " << lineNr << ": Can not convert " << fileName << "with " << field << endl;
 						break;
 					}
 				}

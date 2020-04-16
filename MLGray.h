@@ -88,6 +88,14 @@ public:
     */
     int32_t *GetData() { return data; }
     /**
+    Reads a color image and copies the specified color. Use this method if you read in a gray-image stored as RGB.
+    The routine can of course also be used for fancy effects</summary>
+    <param name="fileName"> Full filename of image. Example: "./image/Lena.jpg"</param>
+    <param name="color">the color channel. R==0, G=1, B=2, Default: 0 (Red)</param>
+    <returns>true if operation successfull, false one can not read the image or invalid color channel</returns>
+    */
+    bool ColorChannel(const string fileName,int color = 0);
+    /**
     <summary> Reads a color image and converts it to Saturated-Gray according to Gr=wRed*RED + wGreen*GREEN + wBlue*BLUE.
     The sum wRed+wGreen+wBlue can have any value. It can be greater or less than 1. The weights can also be negative.
     The only restriction is that the must not create an int32-Overflow.
@@ -156,9 +164,13 @@ public:
     */
 	bool Logistic(double scale=0.025);
     /**
-    <summary> Adds a Laplace-filter to the image. Edges but also noise are enhanced. This filter can be applied
-       as a preprocssing step for halftoning. It works best in combination with Ostromoukhov Halftoning. 
-       Bright edges are made more white, dark edges more blacke.
+    <summary> Adds a Laplace-filter to the image. 
+        1, 1, 1, 
+        1,-8, 1, 
+        1, 1, 1 
+        Edges but also noise are enhanced. This filter can be applied as a preprocssing step for halftoning. 
+        Bright edges are made more white, dark edges more black. But noise is also intensified. To overcome this
+        problem use the Med5Laplace() filter.
        </summary>
      <param name="factor"> The filter is scaled by this value. Default -1.0</param>
     <returns>true if operation successfull, false if failed (empty image).</returns>
@@ -207,6 +219,16 @@ public:
     */
     bool Rescale(double offset = 25.5, double factor = 0.8);
     /**
+    <summary> Separable Gauss 5x5 Filter. 1 4 6 4 1.</summary> 
+    <returns>true if operation successfull, false if failed (empty image).</returns>
+    */
+    bool Gauss55Filter();
+    /**
+    <summary> Separable Gauss 7x7 Filter. 1 6 15 20 15 6 1.</summary>
+    <returns>true if operation successfull, false if failed (empty image).</returns>
+    */
+    bool Gauss77Filter();
+    /**
     <summary> Enhences edges by the method proposed in D.Knuth: Digital Halftones by Dot Diffusion
        Gr=(Gr-factor*meanGr)/(1-factor). meanGr is the mean value in a 3x3 mask </summary>
     <note> The factor 0.9 is equivalent to the Laplace filter.</note>
@@ -250,13 +272,19 @@ public:
     bool Sierra(int32_t threshold = 128);
 
     /**
-    <summary>Implements the halftoning algorithm from:  Victor Ostromoukhov: "A Simple and Efficient Error-Diffusion Algorithm"
+    <summary> Implements the halftoning algorithm from:  Victor Ostromoukhov: "A Simple and Efficient Error-Diffusion Algorithm"
      The algorithm uses for each grayscale an own error-diffusion matrix. The Matrix was optimized to eliminate noise.
      </summary>
     <param name="threshold">The pixel is set to WHITE if the Gr>=threshold. A lower threshold results in a brighter image</param>
     <returns>true if operation successfull, false if failed (empty image).</returns>
     */
     bool Ostromoukhov(int32_t threshold = 128);
+    /**
+    <summary> Selects the optimal threshold for Ostromoukov Halftonig. Best is defined as the L1-distance between
+    the Gauss-Filter of the original image and the Gauss-Filter of the Halftone</summary>
+    <returns>true if operation successfull, false if failed (empty image).</returns>
+    */
+    bool OptOstromouhkov();
     /**
     <summary>Implements ordered Dither with a 4x4 Bayer matrix</summary>
     <returns>true if operation successfull, false if failed (empty image).</returns>
@@ -335,6 +363,9 @@ private:
     const int RGB_Channels = 3;
     const int32_t BLACK = 0;
     const int32_t WHITE = 255;
+    const int RED = 0;     // Color Channels
+    const int GREEN = 1;
+    const int BLUE = 2;
 	inline int pos(int x, int y) { return y * width + x; }
 	inline int line(int y) { return y * width; }
 	inline int clamp(int c) { return (c < 0) ? BLACK : (c <= WHITE) ? c : WHITE; }
@@ -356,10 +387,9 @@ private:
                     data[x + width - 1] + data[x + width] + data[x + width + 1];
         return v;
     }
-
-
+  
     /**
-    <summary>Calculates the value of a 3x3 Convolution/Filter. The convolution mask is given in w.<summary>
+    <summary>Calculates the value of a 3x3 Convolution/Filter. The convolution mask is given in w<summary>
     <attention> Do not call this function at the border of the image. </attention>
     <param name="x">the pixel index. This is y*width+x.</param>
     <param name="x">the weight of the mask. the order is from left-upper to right-lower</param>
