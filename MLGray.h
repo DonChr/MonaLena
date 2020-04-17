@@ -286,6 +286,8 @@ public:
     <returns>the best threshold or -1 if operation failed.</returns>
     */
     int OptOstromoukhov(int from=64,int to=192);
+
+    int OptHalftone(int from, int to,const int halftoneId);
     /**
     <summary>Implements ordered Dither with a 4x4 Bayer matrix</summary>
     <returns>true if operation successfull, false if failed (empty image).</returns>
@@ -367,7 +369,10 @@ private:
     const int RED = 0;     // Color Channels
     const int GREEN = 1;
     const int BLUE = 2;
-	inline int pos(int x, int y) { return y * width + x; }
+    const int FLOYDSTEINBERG = 0;
+    const int OSTROMOUKHOV = 1; 
+    const int JARVIS = 2;
+    inline int pos(int x, int y) { return y * width + x; }
 	inline int line(int y) { return y * width; }
 	inline int clamp(int c) { return (c < 0) ? BLACK : (c <= WHITE) ? c : WHITE; }
 

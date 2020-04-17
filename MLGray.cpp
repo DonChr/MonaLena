@@ -354,95 +354,20 @@ bool MLGray::FloydSteinberg(int32_t threshold) {
 }
 
 int MLGray::OptOstromoukhov(int from,int to) {
-	MLGray t = MLGray(width, height, data);
-	t.Gauss77Filter();
-	int32_t sz = width * height;
-	MLGray ot = MLGray(width, height, data);
-	int64_t bestVal = INT64_MAX;
-	int bestThres = 0;
-	for (int thres = from; thres <= to; thres += 4) {
-		memcpy(ot.data, data, sz * sizeof(int32_t));
-		ot.Ostromoukhov(thres);
-		ot.Gauss77Filter();
-		int64_t diff = 0;
-		for (int i = 0; i < sz; i++) {
-			diff += abs(t.data[i]-ot.data[i]); 
-		}
-		if (diff < bestVal) {
-			bestVal = diff;
-			bestThres = thres;
-		}
-		else {
-			if (diff > 1.5 * bestVal) { break; }
-		}
-	}
-	int l = bestThres - 3;
-	int h = bestThres + 3;
-	for (int thres = l; thres <= h; thres++) {
-		memcpy(ot.data, data, sz * sizeof(int32_t));
-		ot.Ostromoukhov(thres);
-		ot.Gauss77Filter();
-		int64_t diff = 0;
-		for (int i = 0; i < sz; i++) {
-			diff += abs(t.data[i]-ot.data[i]);
-		}
-		if (diff < bestVal) {
-			bestVal = diff;
-			bestThres = thres;
-		}
-	}
-	Ostromoukhov(bestThres);
-	double bestDist = (double)bestVal / sz;
-	std::cout << "OptOstromoukhov: BEST-Threshold = " << bestThres << ", bestDist = " << bestDist << std::endl;
-	return bestThres;
+	return OptHalftone(from, to, OSTROMOUKHOV);
 }
 
 int MLGray::OptJarvis(int from, int to) {
-	MLGray t = MLGray(width, height, data);
-	t.Gauss77Filter();
-	int32_t sz = width * height;
-	MLGray jv = MLGray(width, height, data);
-	int64_t bestVal = INT64_MAX;
-	int bestThres = 0;
-	for (int thres = from; thres <= to; thres += 4) {
-		memcpy(jv.data, data, sz * sizeof(int32_t));
-		jv.Jarvis(thres);
-		jv.Gauss77Filter();
-		int64_t diff = 0;
-		for (int i = 0; i < sz; i++) {
-			diff += abs(t.data[i] - jv.data[i]);
-		}
-		if (diff < bestVal) {
-			bestVal = diff;
-			bestThres = thres;
-		}
-		else {
-			if (diff > 1.5 * bestVal) { break; }
-		}
-	}
-	int l = bestThres - 3;
-	int h = bestThres + 3;
-	for (int thres = l; thres <= h; thres++) {
-		memcpy(jv.data, data, sz * sizeof(int32_t));
-		jv.Jarvis(thres);
-		jv.Gauss77Filter();
-		int64_t diff = 0;
-		for (int i = 0; i < sz; i++) {
-			diff += abs(t.data[i] - jv.data[i]);
-		}
-		if (diff < bestVal) {
-			bestVal = diff;
-			bestThres = thres;
-		}
-	}
-	Jarvis(bestThres);
-	double bestDist = (double)bestVal / sz;
-	std::cout << "OptJarvis: BEST-Threshold = " << bestThres << ", bestDist = " << bestDist << std::endl;
-	return bestThres;
+	return OptHalftone(from, to,JARVIS);
 }
 
 
 int MLGray::OptFloydSteinberg(int from, int to) {
+	return OptHalftone(from, to, FLOYDSTEINBERG);
+}
+
+int MLGray::OptHalftone(int from, int to,const int halftoneId) {
+	if ((halftoneId != FLOYDSTEINBERG) && (halftoneId != OSTROMOUKHOV) && (halftoneId != JARVIS)) { return -1; }
 	MLGray t = MLGray(width, height, data);
 	t.Gauss77Filter();
 	int32_t sz = width * height;
@@ -451,12 +376,14 @@ int MLGray::OptFloydSteinberg(int from, int to) {
 	int bestThres = 0;
 	for (int thres = from; thres <= to; thres += 4) {
 		memcpy(ot.data, data, sz * sizeof(int32_t));
-		ot.FloydSteinberg(thres);
+		if (halftoneId == FLOYDSTEINBERG) { ot.FloydSteinberg(thres); }
+		if (halftoneId == OSTROMOUKHOV) { ot.Ostromoukhov(thres); }
+		if (halftoneId == JARVIS) { ot.Jarvis(thres); }
 		ot.Gauss77Filter();
 		int64_t diff = 0;
 		for (int i = 0; i < sz; i++) {
 			int d = t.data[i] - ot.data[i];
-			diff += abs(t.data[i]-ot.data[i]);
+			diff += abs(t.data[i] - ot.data[i]);
 		}
 		if (diff < bestVal) {
 			bestVal = diff;
@@ -470,22 +397,36 @@ int MLGray::OptFloydSteinberg(int from, int to) {
 	int h = bestThres + 3;
 	for (int thres = l; thres <= h; thres++) {
 		memcpy(ot.data, data, sz * sizeof(int32_t));
-		ot.FloydSteinberg(thres);
+		if (halftoneId == FLOYDSTEINBERG) { ot.FloydSteinberg(thres); }
+		if (halftoneId == OSTROMOUKHOV) { ot.Ostromoukhov(thres); }
+		if (halftoneId == JARVIS) { ot.Jarvis(thres); }
 		ot.Gauss77Filter();
 		int64_t diff = 0;
 		for (int i = 0; i < sz; i++) {
-			diff += abs(t.data[i]-ot.data[i]);
+			diff += abs(t.data[i] - ot.data[i]);
 		}
 		if (diff < bestVal) {
 			bestVal = diff;
 			bestThres = thres;
 		}
 	}
-	FloydSteinberg(bestThres);
 	double bestDist = (double)bestVal / sz;
-	std::cout << "OptFloydSteinberg: BEST-Threshold = " << bestThres << ", bestDist = " << bestDist << std::endl;
+	if (halftoneId == FLOYDSTEINBERG) {
+		std::cout << "OptFloydSteinberg: BEST-Threshold = " << bestThres << ", bestDist = " << bestDist << std::endl;
+		ot.FloydSteinberg(bestThres);
+	}
+	if (halftoneId == OSTROMOUKHOV) { 
+		std::cout << "OptOstromoukhov: BEST-Threshold = " << bestThres << ", bestDist = " << bestDist << std::endl;
+		ot.Ostromoukhov(bestThres);
+	}
+	if (halftoneId == JARVIS) { 
+		std::cout << "OptJarvis: BEST-Threshold = " << bestThres << ", bestDist = " << bestDist << std::endl;
+		ot.Jarvis(bestThres);
+	}
+	memcpy(data, ot.data, sz * sizeof(int32_t));
 	return bestThres;
 }
+
 
 
 bool MLGray::Ostromoukhov(int32_t threshold) {

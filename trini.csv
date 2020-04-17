@@ -1,0 +1,14 @@
+#input-image,grayconverter,preprocess,halftone,postprocess,output-image
+Trini,GIMP,MedLaplace,OptFloydSteinberg,,Trini_GIMP_ML_OptFloydSteinberg
+Trini,GIMP,,OptFloydSteinberg,,Trini_GIMP_OptFloydSteinberg
+Trini,Helmholtz,MedLaplace,OptFloydSteinberg,,Trini_Helm_ML_OptFloydSteinberg
+Trini,Helmholtz,MedLaplace,OptFloydSteinberg,SaltPepper,Trini_Helm_ML_OptFloydSteinberg_SaltPepper
+Trini,Helmholtz,,OptFloydSteinberg,,Trini_Helm_OptFloydSteinberg
+Trini,GIMP,MedLaplace,OptFloydSteinberg,SaltPepper,Trini_GIMP_ML_OptFloydSteinberg_SaltPepper
+Trini,GIMP,,,,Trini_GIMP
+Trini,Helmholtz,,,,Trini_Helm
+Trini,Value,,,,Trini_Value
+Trini,Qt,,,,Trini_Qt
+Trini,Desaturate,,,,Trini_Desat
+Trini,GIMP,MedLaplace,,,Trini_GIMP_ML
+Trini,Helmholtz,MedLaplace,,,Trini_Helm_ML
