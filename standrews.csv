@@ -1,12 +1,7 @@
 #input-image,grayconverter,preprocess,halftone,postprocess,output-image
-StAndrews,GIMP,MedLaplace,,Gauss7,StAndrews_GIMP_ML_GA7
 StAndrews,GIMP,MedLaplace,OptOstromoukhov,,StAndrews_GIMP_ML_OptOstrm
-StAndrews,GIMP,MedLaplace,OptJarvis,,StAndrews_GIMP_ML_OptJarvis
-StAndrews,GIMP,MedLaplace,OptAtkinson,,StAndrews_GIMP_ML_OptAtkinson
 StAndrews,GIMP,MedLaplace,OptFloydSteinberg,,StAndrews_GIMP_ML_OptFloydSteinberg
-StAndrews,GIMP,MedLaplace,OptSierra,,StAndrews_GIMP_ML_OptSierra
-StAndrews,GIMP,MedLaplace,OptOstromoukhov,Gauss7,StAndrews_GIMP_ML_OptOstrm_GA7
-StAndrews,GIMP,MedLaplace,OptJarvis,Gauss7,StAndrews_GIMP_ML_OptJarvis_GA7
-StAndrews,GIMP,MedLaplace,OptAtkinson,Gauss7,StAndrews_GIMP_ML_OptAtkinson_GA7
-StAndrews,GIMP,MedLaplace,OptFloydSteinberg,Gauss7,StAndrews_GIMP_ML_OptFloydSteinberg_GA7
-StAndrews,GIMP,MedLaplace,OptSierra,Gauss7,StAndrews_GIMP_ML_OptSierra_GA7
+StAndrews,GIMP,MedLaplace,OptJarvis,,StAndrews_GIMP_ML_OptJarvis
+StAndrews,GIMP,MedLaplace,OptOstromoukhov,SaltPepper,StAndrews_GIMP_ML_OptOstrm_SaltPepper
+StAndrews,GIMP,MedLaplace,OptFloydSteinberg,SaltPepper,StAndrews_GIMP_ML_OptFloydSteinberg_SaltPepper
+StAndrews,GIMP,MedLaplace,OptJarvis,SaltPepper,StAndrews_GIMP_ML_OptJarvis_SaltPepper

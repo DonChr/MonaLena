@@ -1,12 +1,2 @@
 #input-image,grayconverter,preprocess,halftone,postprocess,output-image
-Mandrill,GIMP,MedLaplace,,Gauss7,Mandrill_GIMP_ML_GA7
-Mandrill,GIMP,MedLaplace,OptOstromoukhov,,Mandrill_GIMP_ML_OptOstrm
-Mandrill,GIMP,MedLaplace,OptJarvis,,Mandrill_GIMP_ML_OptJarvis
-Mandrill,GIMP,MedLaplace,OptAtkinson,,Mandrill_GIMP_ML_OptAtkinson
-Mandrill,GIMP,MedLaplace,OptFloydSteinberg,,Mandrill_GIMP_ML_OptFloydSteinberg
-Mandrill,GIMP,MedLaplace,OptSierra,,Mandrill_GIMP_ML_OptSierra
-Mandrill,GIMP,MedLaplace,OptOstromoukhov,Gauss7,Mandrill_GIMP_ML_OptOstrm_GA7
-Mandrill,GIMP,MedLaplace,OptJarvis,Gauss7,Mandrill_GIMP_ML_OptJarvis_GA7
-Mandrill,GIMP,MedLaplace,OptAtkinson,Gauss7,Mandrill_GIMP_ML_OptAtkinson_GA7
-Mandrill,GIMP,MedLaplace,OptFloydSteinberg,Gauss7,Mandrill_GIMP_ML_OptFloydSteinberg_GA7
-Mandrill,GIMP,MedLaplace,OptSierra,Gauss7,Mandrill_GIMP_ML_OptSierra_GA7
+Mandrill,GIMP,MedLaplace,Genetic,,Mandrill_GIMP_ML_GENOPT

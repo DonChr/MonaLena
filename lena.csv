@@ -1,12 +1,7 @@
 #input-image,grayconverter,preprocess,halftone,postprocess,output-image
-Lena,GIMP,MedLaplace,,Gauss7,Lena_GIMP_ML_GA7
 Lena,GIMP,MedLaplace,OptOstromoukhov,,Lena_GIMP_ML_OptOstrm
-Lena,GIMP,MedLaplace,OptJarvis,,Lena_GIMP_ML_OptJarvis
-Lena,GIMP,MedLaplace,OptAtkinson,,Lena_GIMP_ML_OptAtkinson
 Lena,GIMP,MedLaplace,OptFloydSteinberg,,Lena_GIMP_ML_OptFloydSteinberg
-Lena,GIMP,MedLaplace,OptSierra,,Lena_GIMP_ML_OptSierra
-Lena,GIMP,MedLaplace,OptOstromoukhov,Gauss7,Lena_GIMP_ML_OptOstrm_GA7
-Lena,GIMP,MedLaplace,OptJarvis,Gauss7,Lena_GIMP_ML_OptJarvis_GA7
-Lena,GIMP,MedLaplace,OptAtkinson,Gauss7,Lena_GIMP_ML_OptAtkinson_GA7
-Lena,GIMP,MedLaplace,OptFloydSteinberg,Gauss7,Lena_GIMP_ML_OptFloydSteinberg_GA7
-Lena,GIMP,MedLaplace,OptSierra,Gauss7,Lena_GIMP_ML_OptSierra_GA7
+Lena,GIMP,MedLaplace,OptJarvis,,Lena_GIMP_ML_OptJarvis
+Lena,GIMP,MedLaplace,OptOstromoukhov,SaltPepper,Lena_GIMP_ML_OptOstrm_SaltPepper
+Lena,GIMP,MedLaplace,OptFloydSteinberg,SaltPepper,Lena_GIMP_ML_OptFloydSteinberg_SaltPepper
+Lena,GIMP,MedLaplace,OptJarvis,SaltPepper,Lena_GIMP_ML_OptJarvis_SaltPepper

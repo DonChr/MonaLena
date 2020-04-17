@@ -1,0 +1,7 @@
+#input-image,grayconverter,preprocess,halftone,postprocess,output-image
+Opera,GIMP,MedLaplace,OptOstromoukhov,,Opera_GIMP_ML_OptOstrm
+Opera,GIMP,MedLaplace,OptFloydSteinberg,,Opera_GIMP_ML_OptFloydSteinberg
+Opera,GIMP,MedLaplace,OptJarvis,,Opera_GIMP_ML_OptJarvis
+Opera,GIMP,MedLaplace,OptOstromoukhov,SaltPepper,Opera_GIMP_ML_OptOstrm_SaltPepper
+Opera,GIMP,MedLaplace,OptFloydSteinberg,SaltPepper,Opera_GIMP_ML_OptFloydSteinberg_SaltPepper
+Opera,GIMP,MedLaplace,OptJarvis,SaltPepper,Opera_GIMP_ML_OptJarvis_SaltPepper

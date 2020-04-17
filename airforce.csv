@@ -1,0 +1,7 @@
+#input-image,grayconverter,preprocess,halftone,postprocess,output-image
+Airforce,GIMP,MedLaplace,OptOstromoukhov,,Airforce_GIMP_ML_OptOstrm
+Airforce,GIMP,MedLaplace,OptFloydSteinberg,,Airforce_GIMP_ML_OptFloydSteinberg
+Airforce,GIMP,MedLaplace,OptJarvis,,Airforce_GIMP_ML_OptJarvis
+Airforce,GIMP,MedLaplace,OptOstromoukhov,SaltPepper,Airforce_GIMP_ML_OptOstrm_SaltPepper
+Airforce,GIMP,MedLaplace,OptFloydSteinberg,SaltPepper,Airforce_GIMP_ML_OptFloydSteinberg_SaltPepper
+Airforce,GIMP,MedLaplace,OptJarvis,SaltPepper,Airforce_GIMP_ML_OptJarvis_SaltPepper

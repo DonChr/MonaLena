@@ -10,6 +10,8 @@
 #include <iostream>
 #include <random>
 #include <algorithm>
+#include <vector>
+using namespace std;
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -238,6 +240,15 @@ bool MLGray::Jarvis(int32_t threshold) {
 	const double f1 = 1.0 / 48.0;
 	int lpos;
 	int px;
+	// Ghost row at top. Propagates the error down to first row
+	int32_t* tmp = new int32_t[width];
+	memcpy(tmp, data, width * sizeof(int32_t));
+	for (int x = 0; x < width - 1; x++) {
+		int32_t v = tmp[x];
+		int err = (v < threshold) ? v : WHITE - v;
+		data[x + 1] += (int32_t)(err * f7 + 0.5);
+		data[x] += (int32_t)(err * f7 + 0.5);
+	}
 	for (int y = 0; y < height; y++) {
 		lpos = line(y);
 		for (int x = 0; x < width; x++) {
@@ -283,99 +294,9 @@ bool MLGray::Jarvis(int32_t threshold) {
 
 		}
 	}
+	delete[] tmp;
 	return true;
 }
-
-bool MLGray::Sierra(int32_t threshold) {
-	if ((height <= 1) || (width <= 1)) { return false; }
-	const double f5 = 5.0 / 32.0;
-	const double f4 = 4.0 / 32.0;
-	const double f3 = 3.0 / 32.0;
-	const double f2 = 2.0 / 48.0;
-	int lpos;
-	int px;
-	for (int y = 0; y < height; y++) {
-		lpos = line(y);
-		for (int x = 0; x < width; x++) {
-			px = lpos + x;
-			int32_t v = data[px];
-			data[px] = (v < threshold) ? BLACK : WHITE;
-			int32_t err = v - data[px];
-			if (x < width - 1) {
-				data[px + 1] += (int32_t)(err * f5 + 0.5);
-				if (y < height - 1) {
-					data[px + width + 1] += (int32_t)(err * f4 + 0.5);
-					if (y < height - 2) {
-						data[px + 2 * width + 1] += (int32_t)(err * f2 + 0.5);
-					}
-				}
-				if (x < width - 2) {
-					data[px + 2] += (int32_t)(err * f3 + 0.5);
-					if (y < height - 1) {
-						data[px + width + 2] += (int32_t)(err * f2 + 0.5);
-					}
-				}
-			}
-			if (y < height - 1) {
-				data[px + width] += (int32_t)(err * f5 + 0.5);
-				if (y < height - 2) { data[px + 2 * width] += (int32_t)(err * f3 + 0.5); }
-			}
-			if (x > 0) {
-				if (y < height - 1) {
-					data[px + width - 1] += (int32_t)(err * f4 + 0.5);
-					if (y < height - 2) { data[px + 2 * width - 1] += (int32_t)(err * f2 + 0.5); }
-				}
-				if (x > 1) {
-					if (y < height - 1) {
-						data[px + width - 2] += (int32_t)(err * f2 + 0.5);
-					}
-				}
-			}
-
-		}
-	}
-	return true;
-}
-
-
-
-bool MLGray::Atkinson(int32_t threshold) {
-	if ((height <= 1) || (width <= 1)) { return false; }
-	const double f1 = 0.125; // 1/8
-	int lpos;
-	int px;
-	for (int y = 0; y < height; y++) {
-		lpos = line(y);
-		for (int x = 0; x < width; x++) {
-			px = lpos + x;
-			int32_t v = data[px];
-			data[px] = (v < threshold) ? BLACK : WHITE;
-			int32_t err = round(f1*(v - data[px]));
-			if (x < width - 1) {
-				data[px + 1] += err;
-				if (y < height - 1) {
-					data[px + width + 1] += err;
-				}
-				if (x < width - 2) {
-					data[px + 2] += err;
-				}
-			}
-			if (y < height - 1) {
-				data[px + width] += err;
-				if (y < height - 2) { data[px + 2 * width] += err; }
-			}
-			if (x > 0) {
-				if (y < height - 1) {
-					data[px + width - 1] += err;
-				}
-			}
-
-		}
-	}
-	return true;
-}
-
-
 
 bool MLGray::FloydSteinberg(int32_t threshold) {
 	if ((height <= 1) || (width <= 1)) { return false; }
@@ -383,15 +304,25 @@ bool MLGray::FloydSteinberg(int32_t threshold) {
 	const double f5 = 0.3125;
 	const double f3 = 0.1875;
 	const double f1 = 0.0625;
+	const double f8 = f5 + f3;
 	int lpos;
 	int px;
+	// Assumes a ghost-row at top and propagates the errors of this row down.
+	int32_t* tmp = new int32_t[width];
+	memcpy(tmp, data, width * sizeof(int32_t));
+	for (int x =0; x < width - 1; x++) {
+		int32_t v = tmp[x];
+		int32_t err = (v < threshold) ? v : WHITE - v;
+		data[x + 1] += (int32_t)(err * f7 + 0.5);
+		data[x] += (int32_t)(err * f5 + 0.5);
+	}
 	for (int y = 0; y < height - 1; y++) {
 		lpos = line(y);
 		int32_t v = data[lpos];
 		data[lpos] = (v < threshold) ? BLACK : WHITE;
 		int32_t err = v - data[lpos];
 		data[lpos + 1] += (int32_t)(err * f7 +0.5);
-		data[lpos + width] += (int32_t)(err * f5 + 0.5);
+		data[lpos + width] += (int32_t)(err * f8 + 0.5);  // No bug. Compensates for left-border effects
 		data[lpos + width + 1] += (int32_t)(err * f1 + 0.5);
 		for (int x = 1; x < width - 1; x++) {
 			px = lpos + x;
@@ -408,7 +339,7 @@ bool MLGray::FloydSteinberg(int32_t threshold) {
 		data[px] = (v < threshold) ? BLACK : WHITE;
 		err = v - data[px];
 		data[px + width - 1] += (int32_t)(err * f3 + 0.5);
-		data[px + width] += (int32_t)(err * f5 + 0.5);
+		data[px + width] += (int32_t)(err * f8 + 0.5);  // No Bug. Compensates for rigth border effects
 	}
 	lpos = line(height - 1);
 	for (int x = 0; x < width - 1;x++) {
@@ -418,6 +349,7 @@ bool MLGray::FloydSteinberg(int32_t threshold) {
 		int32_t err = v - data[px];
 		data[px + 1] += (int32_t)(err * f7 + 0.5);
 	}
+	delete[]tmp;
 	return true;
 }
 
@@ -434,8 +366,7 @@ int MLGray::OptOstromoukhov(int from,int to) {
 		ot.Gauss77Filter();
 		int64_t diff = 0;
 		for (int i = 0; i < sz; i++) {
-			int d = t.data[i] - ot.data[i];
-			diff += d*d; 
+			diff += abs(t.data[i]-ot.data[i]); 
 		}
 		if (diff < bestVal) {
 			bestVal = diff;
@@ -453,8 +384,7 @@ int MLGray::OptOstromoukhov(int from,int to) {
 		ot.Gauss77Filter();
 		int64_t diff = 0;
 		for (int i = 0; i < sz; i++) {
-			int d = t.data[i] - ot.data[i];
-			diff += d * d;
+			diff += abs(t.data[i]-ot.data[i]);
 		}
 		if (diff < bestVal) {
 			bestVal = diff;
@@ -467,67 +397,20 @@ int MLGray::OptOstromoukhov(int from,int to) {
 	return bestThres;
 }
 
-int MLGray::OptSierra(int from, int to) {
-	MLGray t = MLGray(width, height, data);
-	t.Gauss77Filter();
-	int32_t sz = width * height;
-	MLGray ot = MLGray(width, height, data);
-	int64_t bestVal = INT64_MAX;
-	int bestThres = 0;
-	for (int thres = from; thres <= to; thres += 4) {
-		memcpy(ot.data, data, sz * sizeof(int32_t));
-		ot.Sierra(thres);
-		ot.Gauss77Filter();
-		int64_t diff = 0;
-		for (int i = 0; i < sz; i++) {
-			int d = t.data[i] - ot.data[i];
-			diff += d * d;
-		}
-		if (diff < bestVal) {
-			bestVal = diff;
-			bestThres = thres;
-		}
-		else {
-			if (diff > 1.5 * bestVal) { break; }
-		}
-	}
-	int l = bestThres - 3;
-	int h = bestThres + 3;
-	for (int thres = l; thres <= h; thres++) {
-		memcpy(ot.data, data, sz * sizeof(int32_t));
-		ot.Sierra(thres);
-		ot.Gauss77Filter();
-		int64_t diff = 0;
-		for (int i = 0; i < sz; i++) {
-			int d = t.data[i] - ot.data[i];
-			diff += d * d;
-		}
-		if (diff < bestVal) {
-			bestVal = diff;
-			bestThres = thres;
-		}
-	}
-	Sierra(bestThres);
-	double bestDist = (double)bestVal / sz;
-	std::cout << "OptSierra: BEST-Threshold = " << bestThres << ", bestDist = " << bestDist << std::endl;
-	return bestThres;
-}
-
 int MLGray::OptJarvis(int from, int to) {
 	MLGray t = MLGray(width, height, data);
 	t.Gauss77Filter();
 	int32_t sz = width * height;
-	MLGray ot = MLGray(width, height, data);
+	MLGray jv = MLGray(width, height, data);
 	int64_t bestVal = INT64_MAX;
 	int bestThres = 0;
 	for (int thres = from; thres <= to; thres += 4) {
-		memcpy(ot.data, data, sz * sizeof(int32_t));
-		ot.Jarvis(thres);
-		ot.Gauss77Filter();
+		memcpy(jv.data, data, sz * sizeof(int32_t));
+		jv.Jarvis(thres);
+		jv.Gauss77Filter();
 		int64_t diff = 0;
 		for (int i = 0; i < sz; i++) {
-			int d = t.data[i] - ot.data[i];
-			diff += d * d;
+			diff += abs(t.data[i] - jv.data[i]);
 		}
 		if (diff < bestVal) {
 			bestVal = diff;
@@ -540,13 +423,12 @@ int MLGray::OptJarvis(int from, int to) {
 	int l = bestThres - 3;
 	int h = bestThres + 3;
 	for (int thres = l; thres <= h; thres++) {
-		memcpy(ot.data, data, sz * sizeof(int32_t));
-		ot.Jarvis(thres);
-		ot.Gauss77Filter();
+		memcpy(jv.data, data, sz * sizeof(int32_t));
+		jv.Jarvis(thres);
+		jv.Gauss77Filter();
 		int64_t diff = 0;
 		for (int i = 0; i < sz; i++) {
-			int d = t.data[i] - ot.data[i];
-			diff += d * d;
+			diff += abs(t.data[i] - jv.data[i]);
 		}
 		if (diff < bestVal) {
 			bestVal = diff;
@@ -558,6 +440,7 @@ int MLGray::OptJarvis(int from, int to) {
 	std::cout << "OptJarvis: BEST-Threshold = " << bestThres << ", bestDist = " << bestDist << std::endl;
 	return bestThres;
 }
+
 
 int MLGray::OptFloydSteinberg(int from, int to) {
 	MLGray t = MLGray(width, height, data);
@@ -573,7 +456,7 @@ int MLGray::OptFloydSteinberg(int from, int to) {
 		int64_t diff = 0;
 		for (int i = 0; i < sz; i++) {
 			int d = t.data[i] - ot.data[i];
-			diff += d * d;
+			diff += abs(t.data[i]-ot.data[i]);
 		}
 		if (diff < bestVal) {
 			bestVal = diff;
@@ -591,8 +474,7 @@ int MLGray::OptFloydSteinberg(int from, int to) {
 		ot.Gauss77Filter();
 		int64_t diff = 0;
 		for (int i = 0; i < sz; i++) {
-			int d = t.data[i] - ot.data[i];
-			diff += d * d;
+			diff += abs(t.data[i]-ot.data[i]);
 		}
 		if (diff < bestVal) {
 			bestVal = diff;
@@ -605,53 +487,6 @@ int MLGray::OptFloydSteinberg(int from, int to) {
 	return bestThres;
 }
 
-int MLGray::OptAtkinson(int from, int to) {
-	MLGray t = MLGray(width, height, data);
-	t.Gauss77Filter();
-	int32_t sz = width * height;
-	MLGray ot = MLGray(width, height, data);
-	int64_t bestVal = INT64_MAX;
-	int bestThres = 0;
-	for (int thres = from; thres <= to; thres += 4) {
-		memcpy(ot.data, data, sz * sizeof(int32_t));
-		ot.Atkinson(thres);
-		ot.Gauss77Filter();
-		int64_t diff = 0;
-		for (int i = 0; i < sz; i++) {
-			int d = t.data[i] - ot.data[i];
-			diff += d * d;
-		}
-		if (diff < bestVal) {
-			bestVal = diff;
-			bestThres = thres;
-		}
-		else {
-			if (diff > 1.5 * bestVal) { break; }
-		}
-	}
-	int l = bestThres - 3;
-	int h = bestThres + 3;
-	for (int thres = l; thres <= h; thres++) {
-		memcpy(ot.data, data, sz * sizeof(int32_t));
-		ot.Atkinson(thres);
-		ot.Gauss77Filter();
-		int64_t diff = 0;
-		for (int i = 0; i < sz; i++) {
-			int d = t.data[i] - ot.data[i];
-			diff += d * d;
-		}
-		if (diff < bestVal) {
-			bestVal = diff;
-			bestThres = thres;
-		}
-	}
-	Atkinson(bestThres);
-	double bestDist = (double)bestVal / sz;
-	std::cout << "OptAtkinson: BEST-Threshold = " << bestThres << ", bestDist = " << bestDist << std::endl;
-	return bestThres;
-}
-
-
 
 bool MLGray::Ostromoukhov(int32_t threshold) {
 	if ((height <= 1) || (width <= 1)) { return false; }
@@ -660,6 +495,18 @@ bool MLGray::Ostromoukhov(int32_t threshold) {
 	double f0;
 	double f1;
 	double f2;
+	// Assumes a ghost-row at top and propagates the errors of this row down.
+	int32_t* tmp = new int32_t[width];
+	memcpy(tmp, data, width * sizeof(int32_t));
+	for (int x = 0; x < width - 1; x++) {
+		int32_t v = clamp(tmp[x]);
+		int32_t err = (v < threshold) ? v : WHITE - v;
+		f0 = (double)OstromC[v] / OstromC[v + 3];
+		f2 = (double)OstromC[v + 2] / OstromC[v + 3];
+		data[x + 1] += (int32_t)(err * f0 + 0.5);
+		data[x] += (int32_t)(err * f2 + 0.5);
+	}
+
 	for (int y = 0; y < height - 1; y++) {
 		lpos = line(y);
 		int32_t v = clamp(data[lpos]);
@@ -670,7 +517,7 @@ bool MLGray::Ostromoukhov(int32_t threshold) {
 		f1 = (double)OstromC[v+1] / OstromC[v + 3];
 		f2 = (double)OstromC[v + 2] / OstromC[v + 3];
 		data[lpos + 1] += (int32_t)(err * f0 + 0.5);
-		data[lpos + width] += (int32_t)(err * f2 + 0.5);
+		data[lpos + width] += (int32_t)(err * (f2+f1) + 0.5); // Compensate left border effects
 		for (int x = 1; x < width - 1; x++) {
 			px = lpos + x;
 			int32_t v = clamp(data[px]);
@@ -704,6 +551,7 @@ bool MLGray::Ostromoukhov(int32_t threshold) {
 		f0 = (double)OstromC[v] / OstromC[v + 3];
 		data[px + 1] += (int32_t)(err * f0 + 0.5);
 	}
+	delete[] tmp;
 	return true;
 }
 
@@ -860,11 +708,11 @@ bool MLGray::KnuthEdge(double factor) {
 	if ((height <= 0) || (width <= 0)||(factor<0)||(factor>=1.0)) { return false; }
 	const double denom = 1.0 - factor;
 	MLGray t = MLGray(width, height, data);
-	for (int y = 1; y < height - 1; y++) {
+	for (int y = 0; y < height; y++) {
 		int lpos = line(y);
 		for (int x = 1; x < width - 1; x++) {
 			int px = lpos + x;
-			double mx = (double)t.Accumulate33(px) / 9.0;
+			double mx = (double)t.Accumulate33(x,y) / 9.0;
 			int32_t v = data[px];
 			data[px] = (int32_t)((v-factor*mx)/denom + 0.5);
 		}
@@ -909,12 +757,12 @@ bool MLGray::SaltPepper(int32_t threshold) {
 	int32_t wthreshold = threshold*WHITE;
 	int32_t bthreshold = (9 - threshold) * WHITE;
 	MLGray t = MLGray(width, height, data);
-	for (int y = 1; y < height - 1; y++) {
+	for (int y = 0; y < height; y++) {
 		int lpos = line(y);
-		for (int x = 1; x < width - 1; x++) {
+		for (int x = 0; x < width; x++) {
 			int px = lpos + x;
 			int v = data[px];
-			int a = t.Accumulate33(px);
+			int a = t.Accumulate33(x,y);
 			if (v == WHITE) {
 				if (a <= wthreshold) { data [px]= BLACK; }
 			}

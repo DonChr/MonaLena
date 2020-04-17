@@ -1,0 +1,6 @@
+#input-image,grayconverter,preprocess,halftone,postprocess,output-image
+Drop,GIMP,MedLaplace,OptFloydSteinberg,,Drop_GIMP_ML_OptFloydSteinberg
+Drop,GIMP,,OptFloydSteinberg,,Drop_GIMP_OptFloydSteinberg
+Drop,Helmholtz,,OptFloydSteinberg,,Drop_Helmholtz_OptFloydSteinberg
+Drop,Desaturate,,OptFloydSteinberg,,Drop_Desaturate_OptFloydSteinberg
+Drop,Value,,OptFloydSteinberg,,Drop_Value_OptFloydSteinberg

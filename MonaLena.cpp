@@ -52,6 +52,29 @@ bool Param3(string cmd, double& v1,double& v2,double &v3) {
 	}
 }
 
+bool Param3(string cmd, int& v1, int& v2, int& v3) {
+	int p = cmd.find(':');
+	if (p < 0) { return false; }
+	try {
+		istringstream s(cmd.substr(p + 1));
+		string ps;
+		for (int n = 1; (n <= 3) && (getline(s, ps, ':')); n++) {
+			if (n == 1) { v1 = stoi(ps); }
+			if (n == 2) { v2 = stoi(ps); }
+			if (n == 3) {
+				v3 = stoi(ps);
+				return true;
+			}
+		}
+		return false;
+	}
+	catch (invalid_argument e) {
+		cout << "Param3 stoi exception" << endl;
+		return false;
+	}
+}
+
+
 bool Param2(string cmd, double& v1, double& v2) {
 	int p = cmd.find(':');
 	if (p < 0) { return false; }
@@ -174,10 +197,6 @@ bool Halftoning(string op, MLGray& img) {
 	if (op.empty()) { return false; }
 	op.erase(remove(op.begin(), op.end(), ' '), op.end());
 	int p1,p2;
-	if (op.find("Atkinson") == 0) {
-		if (Param(op, p1)) { return img.Atkinson(p1); }
-		return img.Atkinson();
-	}
 	if (op.find("FloydSteinberg") == 0) {
 		if (Param(op, p1)) { return img.FloydSteinberg(p1); }
 		return img.FloydSteinberg();
@@ -194,26 +213,13 @@ bool Halftoning(string op, MLGray& img) {
 		if (Param2(op, p1, p2)) { return (img.OptOstromoukhov(p1, p2)>=0); }
 		return (img.OptOstromoukhov()>=0);
 	}
-	if (op.find("OptSierra") == 0) {
-		if (Param2(op, p1, p2)) { return (img.OptSierra(p1, p2) >= 0); }
-		return (img.OptSierra() >= 0);
-	}
-	if (op.find("OptJarvis") == 0) {
-		if (Param2(op, p1, p2)) { return (img.OptJarvis(p1, p2) >= 0); }
-		return (img.OptJarvis() >= 0);
-	}
-	if (op.find("OptAtkinson") == 0) {
-		if (Param2(op, p1, p2)) { return (img.OptAtkinson(p1, p2) >= 0); }
-		return (img.OptAtkinson() >= 0);
-	}
 	if (op.find("OptFloydSteinberg") == 0) {
 		if (Param2(op, p1, p2)) { return (img.OptFloydSteinberg(p1, p2) >= 0); }
 		return (img.OptFloydSteinberg() >= 0);
 	}
-
-	if (op.find("Sierra") == 0) {
-		if (Param(op, p1)) { return img.Sierra(p1); }
-		return img.Sierra();
+	if (op.find("OptJarvis") == 0) {
+		if (Param2(op, p1, p2)) { return (img.OptJarvis(p1, p2) >= 0); }
+		return (img.OptJarvis() >= 0);
 	}
 
 	if (op.find("Bayer44") == 0) {

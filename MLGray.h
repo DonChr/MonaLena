@@ -1,7 +1,7 @@
 /***********************************************************************
 *
 * Copyright (c) 2020 Dr. Chrilly Donninger
-* The code can be freely used for private and educational projects
+* The code can be freely used for private and educational projects.
 * Commerical users must ask the author for permission at c.donninger@wavenet.at
 *
 * This file is part of MonaLisa
@@ -21,11 +21,14 @@ using std::string;
     to this range when the image is saved to an *.jpg file.
     For Loading and Saving from/to JPG the stb_image Library Copyright (c) 2017 Sean Barrett is used.
     The library is wrapped by the LoadImage() and SaveImage() methods. If you want to use another Image-IO libary,
-    modify the code in this 2 methods. The rest should work without any changes. 
+    modify the code in these 2 methods. The rest should work without any changes. 
     One must first read in a JPG (Color) image. There are several conversions from color to grayscale implemented.
     (the methods which have fileName as a first parameter).
-    In the next step one can apply Filters and the Halftoning algorithms. The Halftonig images can be postprocessed.
-    Halftone-Images are stored in the same way. They have only 2 values, WHITE (255) and BLACK (0).
+    The grayscale image can be optionally preprocessed with a filter. 
+    In the next step one can apply Filters and the Halftoning algorithms. 
+    The halftonig images can be postprocessed.
+    Only the first conversion step is necessary. The following steps can be skipped.
+    Halftone-Images are stored in the same way as grayscale. They have only 2 values, WHITE (255) and BLACK (0).
 </summary>
 */
 class MLGray
@@ -34,13 +37,14 @@ public:
 	/**
 	<summary> 
     Default Constructor.
-    Typical usage: MLGray img;
-    img.SaturateGIMP("./image/Lena.jpg"); Or any other of the Color to Grayscale conversion algorithms.
+    Typical usage: 
+    MLGray img;
+    img.SaturateGIMP("./image/Lena.jpg"); //Or any other of the Color to Grayscale conversion algorithms.
     </summary>
     */
     MLGray();
     /**
-    Constructs an image with paramter width and height and allocates the data-array.
+    <summary>Constructs an image with paramter width and height and allocates the data-array.</summary>
     <param name="width">  width of image. </param>
     <param name="height">  height of image. </param>
     */
@@ -243,14 +247,13 @@ public:
     */
  	bool FloydSteinberg(int32_t threshold = 128);
     /**
-        <summary> Selects the optimal threshold for FloydSteinberg Halftonig. Best is defined as the L2-distance between
-        the Gauss-Filter of the original image and the Gauss-Filter of the Halftone</summary>
+        <summary> Selects the optimal threshold for FloydSteinberg Halftonig. Best is defined as the L1-distance between
+        the 7x7 Gauss-Filter of the original image and the 7x7 Gauss-Filter of the Halftone</summary>
         <param name="from">The threshold search is done within range [from,to]. Default: 64</param>
         <param name="from">The threshold search is done within range [from,to]. Default: 192</param>
         <returns>the best threshold or -1 if operation failed.</returns>
     */
     int OptFloydSteinberg(int from = 64, int to = 192);
-
     /**
     <summary>Implements "minimized average error" halftoning algorithm by J.Jarvis, C.Judice and W. Ninke
       The algorithm is similar to Floyd-Steinberg. The diffusion mask is larger. </summary>
@@ -259,63 +262,24 @@ public:
     */
 	bool Jarvis(int32_t threshold = 128);
     /**
-    <summary> Selects the optimal threshold for Jarvis Halftonig. Best is defined as the L2-distance between
-    the Gauss-Filter of the original image and the Gauss-Filter of the Halftone</summary>
-    <param name="from">The threshold search is done within range [from,to]. Default: 64</param>
-    <param name="from">The threshold search is done within range [from,to]. Default: 192</param>
-    <returns>the best threshold or -1 if operation failed.</returns>
+        <summary> Selects the optimal threshold for Jarvis Halftonig. Best is defined as the L1-distance between
+        the 7x7 Gauss-Filter of the original image and the 7x7 Gauss-Filter of the Halftone</summary>
+        <param name="from">The threshold search is done within range [from,to]. Default: 64</param>
+        <param name="from">The threshold search is done within range [from,to]. Default: 192</param>
+        <returns>the best threshold or -1 if operation failed.</returns>
     */
     int OptJarvis(int from = 64, int to = 192);
     /**
-    <summary>Implements the "reduced color blend" from Bill Atkinson. The error/8 is distributed equally to 6 pixels. 
-        It tampens the error propagation by 0.25.
-        .  .  x  1  1
-           1  1  1
-              1     (/8) 
-    </summary>
-    <param name="threshold">The pixel is set to WHITE if the Gr>=threshold. A lower threshold results in a brighter image</param>
-    <returns>true if operation successfull, false if failed (empty image).</returns>
-    */
-    bool Atkinson(int32_t threshold = 128);
-    /**
-    <summary> Selects the optimal threshold for Ostromoukov Halftonig.Best is defined as the L2 - distance between
-        the Gauss - Filter of the original image and the Gauss - Filter of the Halftone< / summary>
-        <param name = "from">The threshold search is done within range[from, to].Default: 64 < / param >
-        <param name = "from">The threshold search is done within range[from, to].Default : 192 < / param >
-        <returns>true if operation successfull, false if failed(empty image).< / returns>
-        <returns>the best threshold or -1 if operation failed.< / returns>
-    */
-    int OptAtkinson(int from = 64, int to = 192);
-    /**
-    <summary> Implements Error-Diffusion from Frankie Sierra. With the following diffusion mask  
-        .   .  X   5   3
-        2   4  5   4   2
-            2  3   2    (/32)   
-    </summary>
-    <param name="threshold">The pixel is set to WHITE if the Gr>=threshold. A lower threshold results in a brighter image</param>
-    <returns>true if operation successfull, false if failed (empty image).</returns>
-    */
-    bool Sierra(int32_t threshold = 128);
-    /**
-    <summary> Selects the optimal threshold for Sierra Halftonig. Best is defined as the L2-distance between
-    the Gauss-Filter of the original image and the Gauss-Filter of the Halftone</summary>
-    <param name="from">The threshold search is done within range [from,to]. Default: 64</param>
-    <param name="from">The threshold search is done within range [from,to]. Default: 192</param>
-    <returns>the best threshold or -1 if operation failed.</returns>
-    */
-    int OptSierra(int from = 64, int to = 192);
-
-    /**
     <summary> Implements the halftoning algorithm from:  Victor Ostromoukhov: "A Simple and Efficient Error-Diffusion Algorithm"
      The algorithm uses for each grayscale an own error-diffusion matrix. The Matrix was optimized to eliminate noise.
-     </summary>
+    </summary>
     <param name="threshold">The pixel is set to WHITE if the Gr>=threshold. A lower threshold results in a brighter image</param>
     <returns>true if operation successfull, false if failed (empty image).</returns>
     */
     bool Ostromoukhov(int32_t threshold = 128);
     /**
-    <summary> Selects the optimal threshold for Ostromoukov Halftonig. Best is defined as the L2-distance between
-    the Gauss-Filter of the original image and the Gauss-Filter of the Halftone</summary>
+    <summary> Selects the optimal threshold for Ostromoukhov Halftonig. Best is defined as the L1-distance between
+     the 7x7 Gauss-Filter of the original image and the 7x7 Gauss-Filter of the Halftone</summary>
     <param name="from">The threshold search is done within range [from,to]. Default: 64</param>
     <param name="from">The threshold search is done within range [from,to]. Default: 192</param>
     <returns>true if operation successfull, false if failed (empty image).</returns>
@@ -348,13 +312,11 @@ public:
     */
     bool Threshold(int32_t threshold = 128);
     /**
-    <summary> Creates for each pixe a random integer in [0,255]. if Gr >= Rand Dither is WHITE, otherwise BLACK. </summary>
+    <summary> Creates for each pixel a random integer in [0,255]. if Gr >= Rand Dither is WHITE, otherwise BLACK. </summary>
     <returns>true if operation successfull, false if failed (empty image).</returns>
   */
     bool Random();
-    /**
-    */
-
+   
     /**
     <summary> Postprocessing of image. Removes Salt and Pepper. Flips Pixel if there are too less
     of own color in 3x3 region.</summary>
@@ -420,10 +382,19 @@ private:
     }
 
 
-    inline int32_t Accumulate33(int x) {
-        int32_t v = data[x - width - 1] + data[x - width] + data[x - width + 1]+
-                    data[x - 1] + data[x] + data[x + 1] + 
-                    data[x + width - 1] + data[x + width] + data[x + width + 1];
+    inline int32_t Accumulate33(int x,int y) {
+        int32_t v=0;
+        for (int dy = -1; dy <= 1; dy++) {
+            int py = y + dy;
+            if (py < 0) { continue; }
+            if (py >= height) { break; }
+            for (int dx = -1; dx <= 1; dx++) {
+                int px = x + dx;
+                if (px < 0) { continue; }
+                if (px >= width) { break; }
+                v += data[py * width + px];
+            }
+        }
         return v;
     }
   

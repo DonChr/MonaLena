@@ -1,0 +1,10 @@
+#input-image,grayconverter,preprocess,halftone,postprocess,output-image
+Skyline,GIMP,MedLaplace,OptOstromoukhov,,Skyline_GIMP_ML_OptOstrm
+Skyline,GIMP,MedLaplace,OptFloydSteinberg,,Skyline_GIMP_ML_OptFloydSteinberg
+Skyline,Helmholtz,MedLaplace,OptFloydSteinberg,,Skyline_Helm_ML_OptFloydSteinberg
+Skyline,GIMP,MedLaplace,OptJarvis,,Skyline_GIMP_ML_OptJarvis
+Skyline,GIMP,MedLaplace,OptOstromoukhov,SaltPepper,Skyline_GIMP_ML_OptOstrm_SaltPepper
+Skyline,GIMP,MedLaplace,OptFloydSteinberg,SaltPepper,Skyline_GIMP_ML_OptFloydSteinberg_SaltPepper
+Skyline,GIMP,MedLaplace,OptJarvis,SaltPepper,Skyline_GIMP_ML_OptJarvis_SaltPepper
+Skyline,GIMP,,,,Skyline_GIMP
+Skyline,Helmholtz:0.5,,,,Skyline_Helm

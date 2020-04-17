@@ -1,0 +1,7 @@
+#input-image,grayconverter,preprocess,halftone,postprocess,output-image
+Arctichare,GIMP,MedLaplace,OptOstromoukhov,,Arctichare_GIMP_ML_OptOstrm
+Arctichare,GIMP,MedLaplace,OptFloydSteinberg,,Arctichare_GIMP_ML_OptFloydSteinberg
+Arctichare,GIMP,MedLaplace,OptJarvis,,Arctichare_GIMP_ML_OptJarvis
+Arctichare,GIMP,MedLaplace,OptOstromoukhov,SaltPepper,Arctichare_GIMP_ML_OptOstrm_SaltPepper
+Arctichare,GIMP,MedLaplace,OptFloydSteinberg,SaltPepper,Arctichare_GIMP_ML_OptFloydSteinberg_SaltPepper
+Arctichare,GIMP,MedLaplace,OptJarvis,SaltPepper,Arctichare_GIMP_ML_OptJarvis_SaltPepper
