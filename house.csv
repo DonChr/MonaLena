@@ -5,3 +5,6 @@ House,GIMP,MedLaplace,OptJarvis,,House_GIMP_ML_OptJarvis
 House,GIMP,MedLaplace,OptOstromoukhov,SaltPepper,House_GIMP_ML_OptOstrm_SaltPepper
 House,GIMP,MedLaplace,OptFloydSteinberg,SaltPepper,House_GIMP_ML_OptFloydSteinberg_SaltPepper
 House,GIMP,MedLaplace,OptJarvis,SaltPepper,House_GIMP_ML_OptJarvis_SaltPepper
+House,GIMP,,,Gauss7,House_GIMP_GA
+House,GIMP,,,,House_GIMP
+House,GIMP,MedLaplace,,,House_GIMP_ML

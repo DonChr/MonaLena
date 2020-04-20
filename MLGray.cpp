@@ -310,7 +310,7 @@ bool MLGray::FloydSteinberg(int32_t threshold) {
 	// Assumes a ghost-row at top and propagates the errors of this row down.
 	int32_t* tmp = new int32_t[width];
 	memcpy(tmp, data, width * sizeof(int32_t));
-	for (int x =0; x < width - 1; x++) {
+	for (int x = 0; x < width - 1; x++) {
 		int32_t v = tmp[x];
 		int32_t err = (v < threshold) ? v : WHITE - v;
 		data[x + 1] += (int32_t)(err * f7 + 0.5);
@@ -368,49 +368,45 @@ int MLGray::OptFloydSteinberg(int from, int to) {
 
 int MLGray::OptHalftone(int from, int to,const int halftoneId) {
 	if ((halftoneId != FLOYDSTEINBERG) && (halftoneId != OSTROMOUKHOV) && (halftoneId != JARVIS)) { return -1; }
-	MLGray t = MLGray(width, height, data);
-	t.Gauss77Filter();
 	int32_t sz = width * height;
+	double* G = new double[sz];
+	double* oG = new double[sz];
+	Gauss77FilterDbl(G);
 	MLGray ot = MLGray(width, height, data);
-	int64_t bestVal = INT64_MAX;
+	double bestVal = 1.0e20;
 	int bestThres = 0;
 	for (int thres = from; thres <= to; thres += 4) {
 		memcpy(ot.data, data, sz * sizeof(int32_t));
 		if (halftoneId == FLOYDSTEINBERG) { ot.FloydSteinberg(thres); }
 		if (halftoneId == OSTROMOUKHOV) { ot.Ostromoukhov(thres); }
 		if (halftoneId == JARVIS) { ot.Jarvis(thres); }
-		ot.Gauss77Filter();
-		int64_t diff = 0;
-		for (int i = 0; i < sz; i++) {
-			int d = t.data[i] - ot.data[i];
-			diff += abs(t.data[i] - ot.data[i]);
-		}
+		ot.Gauss77FilterDbl(oG);
+		int64_t dist = 0;
+		double diff = L1Distance(G,oG,sz);
 		if (diff < bestVal) {
 			bestVal = diff;
 			bestThres = thres;
 		}
 		else {
-			if (diff > 1.5 * bestVal) { break; }
+			if (dist > 1.5 * bestVal) { break; }
 		}
 	}
 	int l = bestThres - 3;
 	int h = bestThres + 3;
+	bestVal = 1.0e20;
 	for (int thres = l; thres <= h; thres++) {
 		memcpy(ot.data, data, sz * sizeof(int32_t));
 		if (halftoneId == FLOYDSTEINBERG) { ot.FloydSteinberg(thres); }
 		if (halftoneId == OSTROMOUKHOV) { ot.Ostromoukhov(thres); }
 		if (halftoneId == JARVIS) { ot.Jarvis(thres); }
-		ot.Gauss77Filter();
-		int64_t diff = 0;
-		for (int i = 0; i < sz; i++) {
-			diff += abs(t.data[i] - ot.data[i]);
-		}
+		ot.Gauss77FilterDbl(oG);
+		double diff = L1Distance(G,oG,sz);
 		if (diff < bestVal) {
 			bestVal = diff;
 			bestThres = thres;
 		}
 	}
-	double bestDist = (double)bestVal / sz;
+	double bestDist = bestVal / sz;
 	if (halftoneId == FLOYDSTEINBERG) {
 		std::cout << "OptFloydSteinberg: BEST-Threshold = " << bestThres << ", bestDist = " << bestDist << std::endl;
 		ot.FloydSteinberg(bestThres);
@@ -423,11 +419,10 @@ int MLGray::OptHalftone(int from, int to,const int halftoneId) {
 		std::cout << "OptJarvis: BEST-Threshold = " << bestThres << ", bestDist = " << bestDist << std::endl;
 		ot.Jarvis(bestThres);
 	}
+	int64_t dt = 0;
 	memcpy(data, ot.data, sz * sizeof(int32_t));
 	return bestThres;
 }
-
-
 
 bool MLGray::Ostromoukhov(int32_t threshold) {
 	if ((height <= 1) || (width <= 1)) { return false; }
@@ -560,6 +555,100 @@ bool MLGray::Gauss55Filter() {
 	return true;
 }
 
+double MLGray::L1Distance(double* f1, double* f2, int sz) {
+	double d1 = 0.0;
+	for (int n = 0; n < sz; n++) {
+		d1 += std::abs(f1[n]-f2[n]);
+	}
+	return d1;
+}
+
+double MLGray::L2Distance(double* f1, double* f2, int sz) {
+	double d2 = 0.0;
+	for (int n = 0; n < sz; n++) {
+		double d = f1[n] - f2[n];
+		d2 += d*d;
+	}
+	return d2;
+}
+
+bool MLGray::Gauss77FilterFromD() {
+	int sz = width * height;
+	double* fx = new double[sz];
+	Gauss77FilterDbl(fx);
+	for (int n = 0; n < sz; n++) {
+		data[n] = (int32_t)(fx[n] + 0.5);
+	}
+	return true;
+}
+
+
+bool MLGray::Gauss77FilterDbl(double *f) {
+	if ((height <= 0) || (width <= 0)) { return false; }
+
+	int sz = width*height;
+	double* fx = new double[sz];
+	for (int n = 0; n < sz; n++) {
+		f[n] = 0.0;
+		fx[n] = 0.0;
+	}
+	for (int y = 0; y < height; y++) {
+		int lpos = line(y);
+		int px = lpos;
+		fx[px] = 42.0*data[px]+15.0*data[px+1]+6.0*data[px+2]+data[px+3];
+		px += 1;
+		fx[px] = 22.0*data[px-1]+20.0*data[px]+15.0*data[px+1]+6.0*data[px+2]+data[px+3];
+		px += 1;
+		fx[px] = 7.0*data[px-2]+15.0*data[px-1]+20.0*data[px]+15.0*data[px+1]+6.0*data[px+2]+data[px+3];
+		px = lpos+width-3;
+		fx[px] = data[px-3]+6.0*data[px-2]+15.0*data[px-1]+20.0*data[px]+15.0*data[px+1]+7.0*data[px+2];
+		px++;
+		fx[px] = data[px-3]+6.0*data[px-2]+15.0*data[px-1]+20.0*data[px]+22.0*data[px+1];
+		px++;
+		fx[px] = data[px-3]+6.0*data[px-2]+15.0*data[px-1]+42.0*data[px];
+
+		for (int x = 3; x < width-3; x++) {
+			px = lpos+x;
+			fx[px] = data[px-3]+6.0*data[px-2]+15.0*data[px-1]+20.0*data[px]+15.0*data[px+1]+6.0*data[px+2]+data[px+3];
+		}
+	}
+	int w1 = width;
+	int w2 = w1+width;
+	int w3 = w2+width;
+	int w_1 = -width;
+	int w_2 = w_1-width;
+	int w_3 = w_2-width;
+	for (int x = 0; x < width; x++) {
+		int py = x;
+	    f[py] = 42.0*fx[py]+15.0*fx[py+w1]+6.0*fx[py+w2]+fx[py+w3];
+		f[py] /= 4096.0;
+		py += width;
+		f[py] = 22.0*fx[py+w_1]+20.0*fx[py]+15.0*fx[py+w1]+6.0*fx[py+w2]+fx[py+w3];
+		f[py] /= 4096.0;
+		py += width;
+		f[py] = 7.0*fx[py+w_2]+15.0*fx[py+w_1]+20.0*fx[py]+15.0*fx[py+w1]+6.0*fx[py+w2]+fx[py+w3];
+		f[py] /= 4096.0;
+		py = x+width*(height-3);
+		f[py] = fx[py+w_3]+6.0*fx[py+w_2]+15.0*fx[py+w_1]+20.0*fx[py]+15.0*fx[py+w1]+7.0*fx[py+w1];
+		f[py] /= 4096.0;
+		py += width;
+		f[py] = fx[py+w_3]+6.0*fx[py+w_2]+15.0*fx[py+w_1]+20.0*fx[py]+22.0*fx[py+w1];
+		f[py] /= 4096.0;
+		py += width;
+		f[py] = fx[py+w_3]+6.0*fx[py+w_2]+15.0*fx[py+w_1]+42.0*fx[py];
+		f[py] /= 4096.0;
+
+		for (int y = 3; y < height-3; y++) {
+			py = x+y*width;
+			f[py] = fx[py+w_3]+6.0*fx[py+w_2]+15.0*fx[py+w_1]+20.0*fx[py]+15.0*fx[py+w1]+6.0*fx[py+w2]+fx[py+w3];
+			f[py] /= 4096.0;
+		}
+	}
+	delete[] fx;
+	return true;
+}
+
+
 bool MLGray::Gauss77Filter() {
 	if ((height <= 0) || (width <= 0)) { return false; }
 
@@ -571,19 +660,19 @@ bool MLGray::Gauss77Filter() {
 		int px = lpos;
 		data[px] = 42 * td[px] + 15 * td[px + 1] + 6*td[px + 2]+td[px+3];
 		px += 1;
-		data[px] = 22 * td[px - 1] + 20 * td[px] + 15 * td[px + 1] + 6*td[px + 2]+ td[px + 3];
+		data[px] = 22 * td[px-1] + 20 * td[px] + 15 * td[px + 1] + 6*td[px + 2]+ td[px + 3];
 		px += 1;
-		data[px] = 7*td[px-2]+15 * td[px - 1] + 20 * td[px] + 15 * td[px + 1] + 6 * td[px + 2] + td[px + 3];
-		px = lpos + width - 3;
-		data[px] = td[px-3]+6*td[px - 2] + 15 * td[px - 1] + 20 * td[px] + 15 * td[px + 1]+ 7 * td[px + 2];
+		data[px] = 7*td[px-2]+15 * td[px-1] + 20 * td[px] + 15 * td[px + 1] + 6 * td[px + 2] + td[px + 3];
+		px = lpos + width-3;
+		data[px] = td[px-3]+6*td[px-2] + 15 * td[px-1] + 20 * td[px] + 15 * td[px + 1]+ 7 * td[px + 2];
 		px++;
-		data[px] = td[px - 3] + 6 * td[px - 2] + 15 * td[px - 1] + 20 * td[px] + 22 * td[px + 1];
+		data[px] = td[px-3] + 6 * td[px-2] + 15 * td[px-1] + 20 * td[px] + 22 * td[px + 1];
 		px++;
-		data[px] = td[px - 3] + 6 * td[px - 2] + 15 * td[px - 1] + 42 * td[px];
+		data[px] = td[px-3] + 6 * td[px-2] + 15 * td[px-1] + 42 * td[px];
 
-		for (int x = 3; x < width - 3; x++) {
+		for (int x = 3; x < width-3; x++) {
 			px = lpos + x;
-			data[px] += td[px-3]+6*td[px - 2] + 15 * td[px - 1] + 20 * td[px] + 15 * td[px + 1] + 6*td[px + 2]+td[px+3];
+			data[px] = td[px-3]+6*td[px-2] + 15 * td[px-1] + 20 * td[px] + 15 * td[px + 1] + 6*td[px + 2]+td[px+3];
 		}
 	}
 	memcpy(td, data, sz * sizeof(int32_t));

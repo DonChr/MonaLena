@@ -232,6 +232,12 @@ public:
     <returns>true if operation successfull, false if failed (empty image).</returns>
     */
     bool Gauss77Filter();
+    bool Gauss77FilterFromD();
+    /**
+    <summary> Separable Gauss 7x7 Filter. 1 6 15 20 15 6 1.</summary>
+    <returns>true if operation successfull, false if failed (empty image).</returns>
+    */
+    bool Gauss77FilterDbl(double *filter);
     /**
     <summary> Enhences edges by the method proposed in D.Knuth: Digital Halftones by Dot Diffusion
        Gr=(Gr-factor*meanGr)/(1-factor). meanGr is the mean value in a 3x3 mask </summary>
@@ -282,11 +288,17 @@ public:
      the 7x7 Gauss-Filter of the original image and the 7x7 Gauss-Filter of the Halftone</summary>
     <param name="from">The threshold search is done within range [from,to]. Default: 64</param>
     <param name="from">The threshold search is done within range [from,to]. Default: 192</param>
-    <returns>true if operation successfull, false if failed (empty image).</returns>
     <returns>the best threshold or -1 if operation failed.</returns>
     */
     int OptOstromoukhov(int from=64,int to=192);
-
+     /**
+    <summary> Selects the optimal threshold. Best is defined as the L1-distance between
+     the 7x7 Gauss-Filter of the original image and the 7x7 Gauss-Filter of the Halftone</summary>
+    <param name="from">The threshold search is done within range [from,to]. Default: 64</param>
+    <param name="from">The threshold search is done within range [from,to]. Default: 192</param>
+     <param name="halftoneId">The underlying Halftone-Algo. One of FLOYDSTEINBERG,OSTROMOUKHOV,JARVIS</param>
+    <returns>the best threshold or -1 if operation failed.</returns>
+    */
     int OptHalftone(int from, int to,const int halftoneId);
     /**
     <summary>Implements ordered Dither with a 4x4 Bayer matrix</summary>
@@ -372,6 +384,8 @@ private:
     const int FLOYDSTEINBERG = 0;
     const int OSTROMOUKHOV = 1; 
     const int JARVIS = 2;
+    double L1Distance(double* f1, double* f2, int sz);
+    double L2Distance(double* f1, double* f2, int sz);
     inline int pos(int x, int y) { return y * width + x; }
 	inline int line(int y) { return y * width; }
 	inline int clamp(int c) { return (c < 0) ? BLACK : (c <= WHITE) ? c : WHITE; }
@@ -402,6 +416,15 @@ private:
         }
         return v;
     }
+
+    const double* Gauss77Msk = new double[49]  {
+          1.0,  6.0, 15.0, 20.0, 15.0,  6.0, 1.0,
+          6.0, 36.0, 90.0,120.0, 90.0, 36.0, 6.0,
+         15.0, 90.0,225.0,300.0,225.0, 90.0,15.0,
+         20.0,120.0,300.0,400.0,300.0,120.0,20.0,
+         15.0, 90.0,225.0,300.0,225.0, 90.0,15.0,
+          6.0, 36.0, 90.0,120.0, 90.0, 36.0, 6.0,
+          1.0,  6.0, 15.0, 20.0, 15.0,  6.0, 1.0};
   
     /**
     <summary>Calculates the value of a 3x3 Convolution/Filter. The convolution mask is given in w<summary>

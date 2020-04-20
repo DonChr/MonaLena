@@ -246,7 +246,8 @@ bool Halftoning(string op, MLGray& img) {
 bool Postprocess(string op, MLGray& img) {
 	if (op.empty()) { return false; }
 	op.erase(remove(op.begin(), op.end(), ' '), op.end());
-	int p1;
+	int p1,p2;
+	
 	if (op.find("SaltPepper") == 0) {
 		if (Param(op, p1)) { return img.SaltPepper(p1); }
 		return img.SaltPepper();
