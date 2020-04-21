@@ -258,6 +258,10 @@ bool Postprocess(string op, MLGray& img) {
 	if (op.find("Gauss7") == 0) {
 		return img.Gauss77Filter();
 	}
+	if (op.find("GameOfLife") == 0) {
+		if (Param2(op, p1,p2)) { return img.GameOfLife(p1,p2); }
+		return img.GameOfLife();
+	}
 	cout << "WARNING: Unknown Postprocessing operation " << op << endl;
 	return false; 
 }

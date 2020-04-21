@@ -782,6 +782,46 @@ bool MLGray::MedianFilter5() {
 }
 
 
+bool MLGray::GameOfLife(int32_t life,int generations) {
+	if ((height <= 0) || (width <= 0)) { return false; }
+	//cout << "GoL life = " << life << ", generations = " << generations << endl;
+	int sz=width*height;
+	const int32_t W2=2*WHITE;
+	const int32_t W3=3*WHITE;
+	const int32_t W5=5*WHITE;
+	const int32_t W6=6*WHITE;
+	MLGray t = MLGray(width, height);
+	for (int g = 0; g < generations; g++) {
+		memcpy(t.data,data,sz*sizeof(int32_t));
+		for (int y = 0; y < height; y++) {
+			int lpos = line(y);
+			for (int x = 0; x < width; x++) {
+				int px = lpos + x;
+
+				int v = t.data[px];
+				int a = t.Accumulate8(x, y);
+				if (v == WHITE) {
+					if (life == 1) {
+						data[px]=((a==W2)||(a==W3))?WHITE:BLACK; // Living White
+					}
+					else {
+						data[px]=(a==W5)?BLACK:WHITE;     // Dead black
+					}
+				}
+				else {
+					if (life == 0) {
+						data[px]==((a==W5)||(a==W6))?BLACK:WHITE; // Living Black
+					}
+					else {
+						data[px]=(a==W3)?WHITE:BLACK;  // Dead White Pixel
+					}
+				}
+			}
+		}
+	}
+	return true;
+}
+  
 bool MLGray::SaltPepper(int32_t threshold) {
 	if ((height <= 0) || (width <= 0)) { return false; }
 	int32_t wthreshold = threshold*WHITE;

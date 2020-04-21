@@ -338,6 +338,8 @@ public:
     <returns>true if operation successfull, false if failed(empty image).< / returns>
   */
     bool SaltPepper(int32_t threshold = 1);
+
+    bool GameOfLife(int32_t life=1,int generations=1);
   
     /**
     <summary> Generates a linear gradient image from black to white with the size 512x512</summary>
@@ -416,6 +418,24 @@ private:
         }
         return v;
     }
+
+     inline int32_t Accumulate8(int x,int y) {
+        int32_t v=0;
+        for (int dy = -1; dy <= 1; dy++) {
+            int py = y + dy;
+            if (py < 0) { continue; }
+            if (py >= height) { break; }
+            for (int dx = -1; dx <= 1; dx++) {
+                if((dy==0)&&(dx==0)) { continue; }
+                int px = x + dx;
+                if (px < 0) { continue; }
+                if (px >= width) { break; }
+                v += data[py * width + px];
+            }
+        }
+        return v;
+    }
+
 
     const double* Gauss77Msk = new double[49]  {
           1.0,  6.0, 15.0, 20.0, 15.0,  6.0, 1.0,

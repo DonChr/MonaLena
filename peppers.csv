@@ -1,10 +1,3 @@
 #input-image,grayconverter,preprocess,halftone,postprocess,output-image
-Peppers,GIMP,MedLaplace,OptOstromoukhov,,Peppers_GIMP_ML_OptOstrm
-Peppers,GIMP,MedLaplace,OptFloydSteinberg,,Peppers_GIMP_ML_OptFloydSteinberg
-Peppers,Helmholtz,MedLaplace,OptFloydSteinberg,,Peppers_Helm_ML_OptFloydSteinberg
-Peppers,GIMP,MedLaplace,OptJarvis,,Peppers_GIMP_ML_OptJarvis
-Peppers,GIMP,MedLaplace,OptOstromoukhov,SaltPepper,Peppers_GIMP_ML_OptOstrm_SaltPepper
-Peppers,GIMP,MedLaplace,OptFloydSteinberg,SaltPepper,Peppers_GIMP_ML_OptFloydSteinberg_SaltPepper
-Peppers,GIMP,MedLaplace,OptJarvis,SaltPepper,Peppers_GIMP_ML_OptJarvis_SaltPepper
 Peppers,GIMP,,,,Peppers_GIMP
 Peppers,Helmholtz:0.5,,,,Peppers_Helm
