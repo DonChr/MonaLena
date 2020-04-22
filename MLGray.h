@@ -340,6 +340,7 @@ public:
     bool SaltPepper(int32_t threshold = 1);
 
     bool GameOfLife(int32_t life=1,int generations=1);
+    bool Majority();
   
     /**
     <summary> Generates a linear gradient image from black to white with the size 512x512</summary>

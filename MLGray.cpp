@@ -844,6 +844,21 @@ bool MLGray::SaltPepper(int32_t threshold) {
 	return true;
 }
 
+bool MLGray::Majority() {
+	if ((height <= 0) || (width <= 0)) { return false; }
+	MLGray t = MLGray(width, height, data);
+	int32_t W5=5*WHITE;
+	for (int y = 0; y < height; y++) {
+		int lpos = line(y);
+		for (int x = 0; x < width; x++) {
+			int px = lpos + x;
+			data[px] = (t.Accumulate33(x,y)>=W5)?WHITE:BLACK;
+		}
+	}
+	return true;
+}
+
+
 
 bool MLGray::Bayer44() {
 	if ((height <= 0) || (width <= 0)) { return false; }

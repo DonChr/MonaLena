@@ -145,7 +145,6 @@ bool ConvertToGray(string fileName, string op, MLGray& img) {
 	if (op.find("Saturate") == 0) {
 		cout << "Saturate" << endl;
 		if (Param3(op, p1, p2, p3)) {
-			cout << "p1=" << p1 << ", p2=" << p2 << ", p3=" << p3 << endl;
 			return img.Saturate(fileName, p1, p2, p3); 
 		}
 		cout << "Param3 failed" << endl;
@@ -257,6 +256,9 @@ bool Postprocess(string op, MLGray& img) {
 	}
 	if (op.find("Gauss7") == 0) {
 		return img.Gauss77Filter();
+	}
+	if (op.find("Majority") == 0) {
+		return img.Majority();
 	}
 	if (op.find("GameOfLife") == 0) {
 		if (Param2(op, p1,p2)) { return img.GameOfLife(p1,p2); }

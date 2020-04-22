@@ -11,6 +11,7 @@ Trini,Helmholtz,MedLaplace,FloydSteinberg:194,GameOfLife:1:10,Trini_Helm_ML_Floy
 Trini,Helmholtz,MedLaplace,FloydSteinberg:194,GameOfLife:0:10,Trini_Helm_ML_FloydSteinberg_GoL0_10
 Trini,Helmholtz,MedLaplace,FloydSteinberg:194,GameOfLife:1:100,Trini_Helm_ML_FloydSteinberg_GoL1_100
 Trini,Helmholtz,MedLaplace,FloydSteinberg:194,GameOfLife:0:100,Trini_Helm_ML_FloydSteinberg_GoL0_100
+Trini,Helmholtz,MedLaplace,FloydSteinberg:194,Majority,Trini_Helm_ML_FloydSteinberg_Majority
 Trini,Helmholtz,,OptFloydSteinberg,,Trini_Helm_OptFloydSteinberg
 Trini,GIMP,MedLaplace,OptFloydSteinberg,SaltPepper,Trini_GIMP_ML_OptFloydSteinberg_SaltPepper
 Trini,GIMP,MedLaplace,Random,,Trini_GIMP_ML_Random
