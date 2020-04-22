@@ -572,17 +572,6 @@ double MLGray::L2Distance(double* f1, double* f2, int sz) {
 	return d2;
 }
 
-bool MLGray::Gauss77FilterFromD() {
-	int sz = width * height;
-	double* fx = new double[sz];
-	Gauss77FilterDbl(fx);
-	for (int n = 0; n < sz; n++) {
-		data[n] = (int32_t)(fx[n] + 0.5);
-	}
-	return true;
-}
-
-
 bool MLGray::Gauss77FilterDbl(double *f) {
 	if ((height <= 0) || (width <= 0)) { return false; }
 
@@ -1005,11 +994,6 @@ unsigned char* MLGray::ToStb() {
 		img[ni + 2] = c;
 	}
 	return img;
-}
-
-bool MLGray::SaveImage(string base, string fname,int quality) {
-	string fileName = "./image/" + base + "_" + fname + ".jpg";
-	return SaveImage(fileName, quality);
 }
 
 bool MLGray::SaveImage(string fileName, int quality) {

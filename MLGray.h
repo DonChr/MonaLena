@@ -18,12 +18,12 @@ using std::string;
 <summary>
     This class implements Operations on a Grayscale Image.
 	The Grayscale is stored as an int32_t. Graylevels can be less than 0 or greater than 255. But they are clamped
-    to this range when the image is saved to an *.jpg file.
+    to this range when the image is saved to a *.jpg file.
     For Loading and Saving from/to JPG the stb_image Library Copyright (c) 2017 Sean Barrett is used.
     The library is wrapped by the LoadImage() and SaveImage() methods. If you want to use another Image-IO libary,
     modify the code in these 2 methods. The rest should work without any changes. 
     One must first read in a JPG (Color) image. There are several conversions from color to grayscale implemented.
-    (the methods which have fileName as a first parameter).
+    (see the handbook for a complete listing).
     The grayscale image can be optionally preprocessed with a filter. 
     In the next step one can apply Filters and the Halftoning algorithms. 
     The halftonig images can be postprocessed.
@@ -96,106 +96,115 @@ public:
     The routine can of course also be used for fancy effects</summary>
     <param name="fileName"> Full filename of image. Example: "./image/Lena.jpg"</param>
     <param name="color">the color channel. R==0, G=1, B=2, Default: 0 (Red)</param>
-    <returns>true if operation successfull, false one can not read the image or invalid color channel</returns>
+    <returns>true if operation successfull, false if one can not read the image or invalid color channel</returns>
     */
     bool ColorChannel(const string fileName,int color = 0);
     /**
-    <summary> Reads a color image and converts it to Saturated-Gray according to Gr=wRed*RED + wGreen*GREEN + wBlue*BLUE.
+    <summary> Reads a color image and converts it to Saturated-Gray with gray intensity I.
+    I = wRed*RED + wGreen*GREEN + wBlue*BLUE.
     The sum wRed+wGreen+wBlue can have any value. It can be greater or less than 1. The weights can also be negative.
-    The only restriction is that the must not create an int32-Overflow.
+    The only restriction is that they must not create an int32-Overflow.
     If the original image is gray, the values are just copied.
     </summary>
     <param name="fileName"> Full filename of image. Example: "./image/Lena.jpg"</param>
     <param name="wRed">weight of Red Image component</param>
     <param name="wGreen">weight of Green Image component</param>
-    <param name="wGreen">weight of Blue Image component</param>
-    <returns>true if operation successfull, false if failed (can not read image file).</returns>
+    <param name="wBlue">weight of Blue Image component</param>
+    <returns>true if operation successfull, false if one can not read the image file).</returns>
     */
     bool Saturate(const string fileName, double wRed, double wGreen, double wBlue);
     /**
     <summary>Convenience function. Calls Saturate() with the weights of GIMP (0.3,0.596,0.11)</summary>
     <param name="scaleFac">The GIMP-weights are multiplied by scaleFac. Default: 1.0</param>
-    <returns>true if operation successfull, false if failed (can not read image file).</returns>
+    <returns>true if operation successfull, false if one can not read the image file.</returns>
     */
     bool SaturateGIMP(const string fileName, double scaleFac = 1.0);
     /**
      <summary>Convenience function. Calls Saturate() with the weights of Qt (0.34375,0.5,0.1625)
-      Qt uses actually integer multiplication with 11/32,16/32,5/32	</summary>
+      Qt uses actually integer multiplication with 11/32, 16/32, 5/32	</summary>
      <param name="fileName"> Full filename of image. Example: "./image/Lena.jpg"</param>
      <param name="scaleFac">The Qt-weights are multiplied by scaleFac</param>
-    <returns>true if operation successfull, false if failed (can not read image file).</returns>
+    <returns>true if operation successfull, false if one can not read the image file.</returns>
      */
     bool SaturateQt(const string fileName, double scaleFac = 1.0);
     /**
     <summary>Copies gray-scale data to the internal array. The width and height must match. This is not checked.
     This method is called when a gray-image is loaded.
+    </summary>
      <param name="d">The original gray values</param>
-     <returns>true</return>
+     <returns>always true</return>
     */
     bool CopyData(const unsigned char* d);
   /**
-	<summary> Converts a Color image with Gr=(Max(R,G,B)+min(R,G,B))/2. This is an option im GIMP</summary>
+	<summary> Converts a Color image with gray scale intensity I set to:
+    I=(Max(R,G,B)+min(R,G,B))/2. 
+    This is an option in GIMP
+    </summary>
 	<param name="fileName"> Full filename of image. Example: "./image/Lena.jpg"</param>
-    <returns>true if operation successfull, false if failed (can not read image file).</returns>
+    <returns>true if operation successfull, false if one can not read the image file.</returns>
    */
 	bool Desaturate(const string fileName);
 	/**
-	<summary> Converts a Color image with Gr=Max(R,G,B). This is an option im GIMP</summary>
+	<summary> Converts a Color image with gray scale intensity I set to:
+    I=Max(R,G,B). 
+    This is an option in GIMP.
+    </summary>
     <param name="fileName"> Full filename of image. Example: "./image/Lena.jpg"</param>
-    <returns>true if operation successfull, false if failed (can not read image file).</returns>
+    <returns>true if operation successfull, false if one can not read the image file.</returns>
  	*/
 	bool Value(const string fileName);
 	/**
-    <summary>Converts a Color image. It tries to correct the grayscale by the Helmholtz–Kohlrausch effect.
+    <summary>Converts a Color image with gray scale intensity I set to: 
             Y = (0.299 * R) + (0.587 * G) + (0.114 * B);  Standard Conversion
             U = (B - Y) * 0.493;      Pure Blue or
             V = (R - Y) * 0.877;      Pure Red increases intensity.
-            Gr= Y + factor*(U+V);     U+V is a measure of the effect.
+            I= Y + factor*(U+V);     U+V is a measure of the effect.
+            It tries to correct the grayscale by the Helmholtz–Kohlrausch effect.
+    </summary>
     <param name="fileName"> Full filename of image. Example: "./image/Lena.jpg"</param>
     <param name="factor"> The weight of the Helmholtz-Kohlrausch effect</param>
-    <returns>true if operation successfull, false if failed (can not read image file).</returns>
+    <returns>true if operation successfull, false if one can not read the image file.</returns>
     */
 	bool Helmholtz(const string fileName,double factor=0.149);
     /**
-    <summary> Applies a logistic transformation to the grayscales of an existing image. Values of middle intensities
-              are stretched, almost BLACK or WHITE are compressed. 
-              x = (Gr-128)*scale;
+    <summary> Applies a logistic transformation to the gray scales I of an existing image. Values of middle intensities
+              are stretched, almost BLACK or WHITE moved towards BLACK or WHITE. 
+              x = (I-128)*scale;
               v = 1.0 / (1.0 + exp(-x));
-              Gr=WHITE*v;
+              I=WHITE*v;
     </summary>
     <param name="scale"> Defines the steepness of the logistic curve</param>
-    <returns>true if operation successfull, false if failed (empty image).</returns>
+    <returns>true if operation successfull, false if image is empty.</returns>
     */
 	bool Logistic(double scale=0.025);
     /**
     <summary> Adds a Laplace-filter to the image. 
-        1, 1, 1, 
-        1,-8, 1, 
-        1, 1, 1 
-        Edges but also noise are enhanced. This filter can be applied as a preprocssing step for halftoning. 
-        Bright edges are made more white, dark edges more black. But noise is also intensified. To overcome this
-        problem use the Med5Laplace() filter.
-       </summary>
+     1, 1, 1, 
+     1,-8, 1, 
+     1, 1, 1 
+     Edges but also noise are enhanced. This filter can be applied as a preprocssing step for halftoning. 
+     Bright edges are made more white, dark edges more black. But noise is also intensified. To overcome this
+     problem use the Med5Laplace() filter.
+     </summary>
      <param name="factor"> The filter is scaled by this value. Default -1.0</param>
-    <returns>true if operation successfull, false if failed (empty image).</returns>
+    <returns>true if operation successfull, false if image is empty.</returns>
     */
     bool LaplaceSharpen(double factor=-1.0);
     /**
     <summary> Applies first a MedianFilter5() and calls then LaplaceSharpen(). The idea is to remove first
-       salt and pepper and then call Laplace to enhance edges.
-       This is a preprocessing method.
-       </summary>
-     <param name="factor"> The Laplace-filter is scaled by this value. Default -1.0</param>
-    <returns>true if operation successfull, false if failed (empty image).</returns>
+    salt and pepper and then call Laplace to enhance edges. This is a preprocessing method.
+    </summary>
+    <param name="factor"> The Laplace-filter is scaled by this value. Default -1.0</param>
+    <returns>true if operation successfull, false if image is empty.</returns>
     */
     bool Med5Laplace(double factor = -1.0);
     /**
-    <summary> Filters the image with the median of the mask 
+    <summary> Filters the image with the median of the mask.
      1 1 1
      1 x 1
      1 1 1
     </summary>
-    <returns>true if operation successfull, false if failed (empty image).</returns>
+    <returns>true if operation successfull, false if image is empty.</returns>
     */
     bool MedianFilter9();
     /**
@@ -204,7 +213,7 @@ public:
       1  x  1
       .  1  .
     </summary>
-    <returns>true if operation successfull, false if failed (empty image).</returns>
+    <returns>true if operation successfull, false if image is empty.</returns>
     */
     bool MedianFilter5();
     /**
@@ -212,140 +221,170 @@ public:
        use for halftoning.
     </summary>
      <param name="offset">The value of the filter is added to this offset. The filter values can be negative. Default: 128</param>
-    <returns>true if operation successfull, false if failed (empty image).</returns>
+    <returns>true if operation successfull, false if image is empty.</returns>
     */
     bool LaplaceFilter(int offset=128);
     /**
-    <summary> Rescales the image. Gr=offset+factor*Gray. The method can be used for preprocessing </summary>
-    <param name="offset">See the linear equation above. Default 26</param>
+    <summary> Rescales the gray scale I of thhe image according to: 
+    I=offset+factor*I. 
+    The method can be used for preprocessing 
+    </summary>
+    <param name="offset">See the linear equation above. Default 25.5</param>
     <param name="factor">See the linear equation above. Default 0.8</param>
-    <returns>true if operation successfull, false if failed (empty image).</returns>
+    <returns>true if operation successfull, false if image is empty.</returns>
     */
     bool Rescale(double offset = 25.5, double factor = 0.8);
     /**
     <summary> Separable Gauss 5x5 Filter. 1 4 6 4 1.</summary> 
-    <returns>true if operation successfull, false if failed (empty image).</returns>
+    <returns>true if operation successfull, false if image is empty.</returns>
     */
     bool Gauss55Filter();
     /**
     <summary> Separable Gauss 7x7 Filter. 1 6 15 20 15 6 1.</summary>
-    <returns>true if operation successfull, false if failed (empty image).</returns>
+    <returns>true if operation successfull, false if image is empty.</returns>
     */
     bool Gauss77Filter();
-    bool Gauss77FilterFromD();
     /**
-    <summary> Separable Gauss 7x7 Filter. 1 6 15 20 15 6 1.</summary>
-    <returns>true if operation successfull, false if failed (empty image).</returns>
+    <summary> Separable Gauss 7x7 Filter. 1 6 15 20 15 6 1.
+    Does not modify the data. It stores the exact values of the convolution in the filter-array.
+    </summary>
+    <param name="filter">The convolution result is stored in this array. It must be at least have the size
+    of width*height. </param>
+    <returns>true if operation successfull, false if image is empty.</returns>
     */
     bool Gauss77FilterDbl(double *filter);
     /**
     <summary> Enhences edges by the method proposed in D.Knuth: Digital Halftones by Dot Diffusion
-       Gr=(Gr-factor*meanGr)/(1-factor). meanGr is the mean value in a 3x3 mask </summary>
+    I=(I-factor*meanI)/(1-factor). meanI is the mean value in a 3x3 mask 
+    </summary>
     <note> The factor 0.9 is equivalent to the Laplace filter.</note>
     <param name="factor">See the equation above. Default 0.8. factor must be within [0,1.0) </param>
-      <returns>true if operation successfull, false if image is empty or factor not in range.</returns>
+    <returns>true if operation successfull, false if image is empty or factor not in range.</returns>
     */
     bool KnuthEdge(double factor = 0.8);
     /**
-    <summary>Implements the Floyd-Steinberg error diffusion halftoning algorithm. </summary>
-    <param name="threshold">The pixel is set to WHITE if the Gr>=threshold. A lower threshold results in a brighter image</param>
-    <returns>true if operation successfull, false if failed (empty image).</returns>
+    <summary>Implements the Floyd-Steinberg error diffusion halftoning algorithm. 
+    </summary>
+    <param name="threshold">The pixel is set to WHITE if the diffused I>=threshold.</param>
+    <returns>true if operation successfull, false if image is empty.</returns>
     */
  	bool FloydSteinberg(int32_t threshold = 128);
     /**
-        <summary> Selects the optimal threshold for FloydSteinberg Halftonig. Best is defined as the L1-distance between
-        the 7x7 Gauss-Filter of the original image and the 7x7 Gauss-Filter of the Halftone</summary>
-        <param name="from">The threshold search is done within range [from,to]. Default: 64</param>
-        <param name="from">The threshold search is done within range [from,to]. Default: 192</param>
-        <returns>the best threshold or -1 if operation failed.</returns>
+    <summary> Selects the optimal threshold for FloydSteinberg Halftonig. Best is defined as the L1-distance between
+    the 7x7 Gauss-Filter of the original image and the 7x7 Gauss-Filter of the Halftone.
+    The image is dithered with the optimal threshold.
+    </summary>
+    <param name="from">The threshold search is done within range [from,to]. Default: 64</param>
+    <param name="to">The threshold search is done within range [from,to]. Default: 192</param>
+    <returns>the best threshold or -1 if image is empty.</returns>
     */
     int OptFloydSteinberg(int from = 64, int to = 192);
     /**
     <summary>Implements "minimized average error" halftoning algorithm by J.Jarvis, C.Judice and W. Ninke
-      The algorithm is similar to Floyd-Steinberg. The diffusion mask is larger. </summary>
-    <param name="threshold">The pixel is set to WHITE if the Gr>=threshold. A lower threshold results in a brighter image</param>
-    <returns>true if operation successfull, false if failed (empty image).</returns>
+    The algorithm is similar to Floyd-Steinberg. The diffusion mask is larger. 
+    </summary>
+    <param name="threshold">The pixel is set to WHITE if the diffused I>=threshold.</param>
+    <returns>true if operation successfull, false if image is empty.</returns>
     */
 	bool Jarvis(int32_t threshold = 128);
     /**
-        <summary> Selects the optimal threshold for Jarvis Halftonig. Best is defined as the L1-distance between
-        the 7x7 Gauss-Filter of the original image and the 7x7 Gauss-Filter of the Halftone</summary>
-        <param name="from">The threshold search is done within range [from,to]. Default: 64</param>
-        <param name="from">The threshold search is done within range [from,to]. Default: 192</param>
-        <returns>the best threshold or -1 if operation failed.</returns>
+    <summary> Selects the optimal threshold for Jarvis Halftonig. Best is defined as the L1-distance between
+    the 7x7 Gauss-Filter of the original image and the 7x7 Gauss-Filter of the Halftone</summary>
+    The image is dithered with the optimal threshold.
+    <param name="from">The threshold search is done within range [from,to]. Default: 64</param>
+    <param name="to">The threshold search is done within range [from,to]. Default: 192</param>
+    <returns>the best threshold or -1 if image is empty.</returns>
     */
     int OptJarvis(int from = 64, int to = 192);
     /**
     <summary> Implements the halftoning algorithm from:  Victor Ostromoukhov: "A Simple and Efficient Error-Diffusion Algorithm"
      The algorithm uses for each grayscale an own error-diffusion matrix. The Matrix was optimized to eliminate noise.
     </summary>
-    <param name="threshold">The pixel is set to WHITE if the Gr>=threshold. A lower threshold results in a brighter image</param>
-    <returns>true if operation successfull, false if failed (empty image).</returns>
+    <param name="threshold">The pixel is set to WHITE if the diffused I>=threshold.</param>
+    <returns>true if operation successfull, false if image is empty.</returns>
     */
     bool Ostromoukhov(int32_t threshold = 128);
     /**
     <summary> Selects the optimal threshold for Ostromoukhov Halftonig. Best is defined as the L1-distance between
-     the 7x7 Gauss-Filter of the original image and the 7x7 Gauss-Filter of the Halftone</summary>
+    the 7x7 Gauss-Filter of the original image and the 7x7 Gauss-Filter of the Halftone.
+    The image is dithered with the optimal threshold.
+    </summary>
     <param name="from">The threshold search is done within range [from,to]. Default: 64</param>
-    <param name="from">The threshold search is done within range [from,to]. Default: 192</param>
-    <returns>the best threshold or -1 if operation failed.</returns>
+    <param name="to">The threshold search is done within range [from,to]. Default: 192</param>
+    <returns>the best threshold or -1 if image is empty.</returns>
     */
     int OptOstromoukhov(int from=64,int to=192);
      /**
     <summary> Selects the optimal threshold. Best is defined as the L1-distance between
-     the 7x7 Gauss-Filter of the original image and the 7x7 Gauss-Filter of the Halftone</summary>
+     the 7x7 Gauss-Filter of the original image and the 7x7 Gauss-Filter of the Halftone.
+     The image is dithered with the optimal threshold.
+     The method is called by the Opt... methods above and does the real work.
+    </summary>
     <param name="from">The threshold search is done within range [from,to]. Default: 64</param>
-    <param name="from">The threshold search is done within range [from,to]. Default: 192</param>
+    <param name="to">The threshold search is done within range [from,to]. Default: 192</param>
      <param name="halftoneId">The underlying Halftone-Algo. One of FLOYDSTEINBERG,OSTROMOUKHOV,JARVIS</param>
-    <returns>the best threshold or -1 if operation failed.</returns>
+    <returns>the best threshold or -1 if image is empty or halftoneId is invalid.</returns>
     */
     int OptHalftone(int from, int to,const int halftoneId);
     /**
-    <summary>Implements ordered Dither with a 4x4 Bayer matrix</summary>
-    <returns>true if operation successfull, false if failed (empty image).</returns>
+    <summary>Implements ordered Dither with a 4x4 Bayer matrix.</summary>
+    <returns>true if operation successfull, false if image is empty.</returns>
     */
     bool Bayer44();
     /**
-     <summary>Implements ordered Dither with a 8x8 Bayer matrix</summary>
-    <returns>true if operation successfull, false if failed (empty image).</returns>
+     <summary>Implements ordered Dither with a 8x8 Bayer matrix.</summary>
+    <returns>true if operation successfull, false if image is empty.</returns>
     */
     bool Bayer88();
     /**
-     <summary>Implements ordered Dither with a 8x8 Bayer matrix. Before accessing the Bayer-Matrix
-     a uniform distributed random number from [-range,range] is added to the pixel value. This should
-     break the regular pattern created by the Bayer Matrix
-     </summary>
-    <param name="range">The uniform distribution is created in [-range,range]. Default: 20</param>
-    <returns>true if operation successfull, false if failed (empty image).</returns>
+    <summary>Implements ordered Dither with a 8x8 Bayer matrix. Before accessing the Bayer-Matrix
+    a uniform distributed random number from [-range,range] is added to the pixel value. This should
+    break the regular patterns created by the Bayer Matrix
+    </summary>
+    <param name="range">The uniform distribution is created int [-range,range]. Default: 20</param>
+    <returns>true if operation successfull, false if image is empty.</returns>
     */
     bool BayerRnd88(int32_t range=20);
     /**
-    <summary> Trivial Dither. If Pixel value >=threshold, WHITE, below BLACK. </summary>
-    <param name="threshold">The pixel is set to WHITE if the Gr>=threshold. I lower threshold results in a brighter image</param>
-    <returns>true if operation successfull, false if failed (empty image).</returns>
+    <summary> Trivial Dither.</summary>
+    <param name="threshold">The pixel is set to WHITE if the I>=threshold.</param>
+    <returns>true if operation successfull, false if image is empty.</returns>
     */
     bool Threshold(int32_t threshold = 128);
     /**
-    <summary> Creates for each pixel a random integer in [0,255]. if Gr >= Rand Dither is WHITE, otherwise BLACK. </summary>
-    <returns>true if operation successfull, false if failed (empty image).</returns>
-  */
+    <summary> Creates for each pixel a random integer in [0,255]. If I >= Rand Dither is WHITE, otherwise BLACK. </summary>
+    <returns>true if operation successfull, false if image is empty.</returns>
+    */
     bool Random();
-   
     /**
     <summary> Postprocessing of image. Removes Salt and Pepper. Flips Pixel if there are too less
-    of own color in 3x3 region.</summary>
+    of own color in 3x3 region.
+    </summary>
     <param name="threshold">The nummer of pixels of same color. Default: 1</param>
-    <returns>true if operation successfull, false if failed(empty image).< / returns>
-  */
+    <returns>true if operation successfull, false if image is empty.< / returns>
+    */
     bool SaltPepper(int32_t threshold = 1);
-
+    /**
+    <summary> Processes halftone image according the rules of Conway's game of life. A living pixel is living
+    in the next generation, if it has 2 or 3 living neighbors. A dead pixel is living, if it has 3 living neighbors.
+    Otherwise it is dead. 
+    </summary>
+    <param name="life"> If life=1 the white pixels are interpreted as living cells. If life=0, the black pixels
+    are living. Default: 1 WHITE is living</param>
+    <param name="generations">Number of generations.</params>
+    <returns>true if operation successfull, false if image is empty.< / returns>
+    */
     bool GameOfLife(int32_t life=1,int generations=1);
+    /**
+    <summary> A majority filter for halftoning. Sets the pixel to the majority in a 3x3 area. This is a special
+    case of a median filter</summary>
+    <returns>true if operation successfull, false if image is empty.< / returns>
+     */
     bool Majority();
-  
     /**
     <summary> Generates a linear gradient image from black to white with the size 512x512</summary>
     <param name="blackToWhite">If true the image starts on the left with BLACK and increase to the right to WHITE.
-    If false, it starts with WHITE and decreases to BLACK. </param>
+    If false, it starts with WHITE and decreases to BLACK.</param>
     */
     void LinearGradient(bool blackToWhite=true);
     /**
@@ -354,17 +393,6 @@ public:
     If false, it starts with WHITE and decreases to BLACK.  </param>
     */
     void RadialGradient(bool blackToWhite = true);
-
-    /**
-    <summary> Saves the image in *.jpg format. The image is stored as a RGB-color-image with same values for R,G,B.
-       The fileName is constructed as ./image/<base>_<filename>.jpg. This is usefull if one
-       applies different operation to the same color image </summary>
-    <param name="base">First part of image-filename</param>
-    <param name="base">Second part of image-filename</param>
-    <param name="quality">The compression quality of the image. Default: 100. Highest quality</param>
-    <returns>true if operation successfull, false if failed.</returns>
-    */
-	bool SaveImage(string base, string filename,int quality=100);
     /**
     <summary> Saves the image in *.jpg format. The image is stored as a RGB-color-image with same values for R,G,B.
     <param name="fileName"> Full Filename. example: "./image/LinearGradient.jpg"</param>
@@ -379,12 +407,12 @@ public:
 
 private:
     const int RGB_Channels = 3;
-    const int32_t BLACK = 0;
+    const int32_t BLACK = 0;   // Halftone values.
     const int32_t WHITE = 255;
     const int RED = 0;     // Color Channels
     const int GREEN = 1;
     const int BLUE = 2;
-    const int FLOYDSTEINBERG = 0;
+    const int FLOYDSTEINBERG = 0;   // Method ids for threshold Optimizer
     const int OSTROMOUKHOV = 1; 
     const int JARVIS = 2;
     double L1Distance(double* f1, double* f2, int sz);
