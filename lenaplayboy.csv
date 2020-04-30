@@ -1,0 +1,3 @@
+#input-image,grayconverter,preprocess,halftone,postprocess,output-image
+LenaPlayboy,Helmholtz,MedLaplace,FloydSteinberg:194,,LenaPlayboy_Helm_ML_FloydSteinberg
+LenaPlayboy,Helmholtz,,FloydSteinberg:194,,LenaPlayboy_Helm_FloydSteinberg

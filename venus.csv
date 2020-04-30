@@ -1,0 +1,3 @@
+#input-image,grayconverter,preprocess,halftone,postprocess,output-image
+Venus,Helmholtz,MedLaplace,FloydSteinberg:194,,Venus_Helm_ML_FloydSteinberg
+Venus,Helmholtz,,FloydSteinberg:194,,Venus_Helm_FloydSteinberg
