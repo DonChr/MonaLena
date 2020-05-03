@@ -290,7 +290,10 @@ bool Postprocess(string op, MLGray& img) {
 		return img.Majority();
 	}
 	if (op.find("GameOfLife") == 0) {
-		if (Param2(op, p1,p2)) { return img.GameOfLife(p1,p2); }
+		if (Param2(op, p1,p2)) {
+			bool whiteAlive=(p1!=0);
+			return img.GameOfLife(whiteAlive,p2); 
+		}
 		return img.GameOfLife();
 	}
 	cout << "WARNING: Unknown Postprocessing operation " << op << endl;

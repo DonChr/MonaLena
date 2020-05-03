@@ -369,12 +369,12 @@ public:
     in the next generation, if it has 2 or 3 living neighbors. A dead pixel is living, if it has 3 living neighbors.
     Otherwise it is dead. 
     </summary>
-    <param name="life"> If life=1 the white pixels are interpreted as living cells. If life=0, the black pixels
-    are living. Default: 1 WHITE is living</param>
+    <param name="whiteAlive"> If true the white pixels are interpreted as living cells. If false the black pixels
+    are living. Default: true is living</param>
     <param name="generations">Number of generations.</params>
     <returns>true if operation successfull, false if image is empty.< / returns>
     */
-    bool GameOfLife(int32_t life=1,int generations=1);
+    bool GameOfLife(bool whiteAlive=true,int generations=1);
     /**
     <summary> A majority filter for halftoning. Sets the pixel to the majority in a 3x3 area. This is a special
     case of a median filter</summary>

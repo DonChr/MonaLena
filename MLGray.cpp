@@ -771,15 +771,16 @@ bool MLGray::MedianFilter5() {
 }
 
 
-bool MLGray::GameOfLife(int32_t life,int generations) {
+bool MLGray::GameOfLife(bool whiteAlife,int generations) {
 	if ((height <= 0) || (width <= 0)) { return false; }
-	//cout << "GoL life = " << life << ", generations = " << generations << endl;
+	cout << "GoL life = " << whiteAlife << ", generations = " << generations << endl;
 	int sz=width*height;
 	const int32_t W2=2*WHITE;
 	const int32_t W3=3*WHITE;
-	const int32_t W5=5*WHITE;
-	const int32_t W6=6*WHITE;
+	const int32_t W8=8*WHITE;
 	MLGray t = MLGray(width, height);
+	int32_t life=(whiteAlife)?WHITE:BLACK;
+	int32_t dead=(whiteAlife)?BLACK:WHITE;
 	for (int g = 0; g < generations; g++) {
 		memcpy(t.data,data,sz*sizeof(int32_t));
 		for (int y = 0; y < height; y++) {
@@ -789,21 +790,12 @@ bool MLGray::GameOfLife(int32_t life,int generations) {
 
 				int v = t.data[px];
 				int a = t.Accumulate8(x, y);
-				if (v == WHITE) {
-					if (life == 1) {
-						data[px]=((a==W2)||(a==W3))?WHITE:BLACK; // Living White
-					}
-					else {
-						data[px]=(a==W5)?BLACK:WHITE;     // Dead black
-					}
+				if(whiteAlife) { a=W8-a;}
+				if (v == life) {
+					data[px] = ((a==W2)||(a==W3))?life:dead;
 				}
 				else {
-					if (life == 0) {
-						data[px]==((a==W5)||(a==W6))?BLACK:WHITE; // Living Black
-					}
-					else {
-						data[px]=(a==W3)?WHITE:BLACK;  // Dead White Pixel
-					}
+					data[px]=(a==W3)?life:dead;
 				}
 			}
 		}

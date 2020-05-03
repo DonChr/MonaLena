@@ -1,9 +1,9 @@
 # MonaLena
 **MonaLena** is a comprehensive C++ image-library for converting color images to grayscale and from grayscale to halftone aka dithering. 
 The name is a hommage to Lena Forsen-Soederberg, the Mona-Lisa of the internet age.
+The initial idea for this project is by Thomas Krenn, https://www.timitoosystems.com/
 
-A detailed description can be found in ./docs/MonaLenaHandbook.odt. 
-I have not converted the handbook to *.pdf, because the conversion process detoriates some of the halftone images.
+A detailed description can be found in ./docs/MonaLenaHandbook.odt or ./docs/MonaLenaHandbook.pdf. The *.pdf file is the exported result of the former. 
 This document serves also as a gentle introduction to the field. 
 Additionally the code is relative well documented.
 
