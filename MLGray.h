@@ -264,6 +264,8 @@ public:
     bool KnuthEdge(double factor = 0.8);
     /**
     <summary>Implements the Floyd-Steinberg error diffusion halftoning algorithm. 
+    .   x    7
+    3   5    1   Divided by 16
     </summary>
     <param name="threshold">The pixel is set to WHITE if the diffused I>=threshold.</param>
     <returns>true if operation successfull, false if image is empty.</returns>
@@ -282,6 +284,9 @@ public:
     /**
     <summary>Implements "minimized average error" halftoning algorithm by J.Jarvis, C.Judice and W. Ninke
     The algorithm is similar to Floyd-Steinberg. The diffusion mask is larger. 
+      .   .   x   7   5
+      3   5   7   5   3
+      1   3   5   3   1     divided by 48
     </summary>
     <param name="threshold">The pixel is set to WHITE if the diffused I>=threshold.</param>
     <returns>true if operation successfull, false if image is empty.</returns>
@@ -296,6 +301,26 @@ public:
     <returns>the best threshold or -1 if image is empty.</returns>
     */
     int OptJarvis(int from = 64, int to = 192);
+    /**
+    <summary>Implements "MECCA - A multiple error correction computation algorithm for bilevel hardcopy reproduction" by P. Stucki
+    The algorithm is very similar to Jarvis. The mask is the same, the weights are slightly different. 
+      .   .   x   8   4
+      2   4   8   4   2
+      1   2   4   2   1     divided by 42
+    </summary>
+    <param name="threshold">The pixel is set to WHITE if the diffused I>=threshold.</param>
+    <returns>true if operation successfull, false if image is empty.</returns>
+    */
+	bool Stucki(int32_t threshold = 128);
+    /**
+    <summary> Selects the optimal threshold for Stucki Halftonig. Best is defined as the L1-distance between
+    the 7x7 Gauss-Filter of the original image and the 7x7 Gauss-Filter of the Halftone</summary>
+    The image is dithered with the optimal threshold.
+    <param name="from">The threshold search is done within range [from,to]. Default: 64</param>
+    <param name="to">The threshold search is done within range [from,to]. Default: 192</param>
+    <returns>the best threshold or -1 if image is empty.</returns>
+    */
+    int OptStucki(int from = 64, int to = 192);
     /**
     <summary> Implements the halftoning algorithm from:  Victor Ostromoukhov: "A Simple and Efficient Error-Diffusion Algorithm"
      The algorithm uses for each grayscale an own error-diffusion matrix. The Matrix was optimized to eliminate noise.
@@ -382,6 +407,11 @@ public:
      */
     bool Majority();
     /**
+    <summary> Inverts the halftone image. WHITE to BLACK, BLACK to WHITE</summary>
+    <returns>true if operation successfull, false if image is empty.< / returns>
+     */
+    bool Invert();
+    /**
     <summary> Generates a linear gradient image from black to white with the size 512x512</summary>
     <param name="blackToWhite">If true the image starts on the left with BLACK and increase to the right to WHITE.
     If false, it starts with WHITE and decreases to BLACK.</param>
@@ -415,6 +445,7 @@ private:
     const int FLOYDSTEINBERG = 0;   // Method ids for threshold Optimizer
     const int OSTROMOUKHOV = 1; 
     const int JARVIS = 2;
+    const int STUCKI=3;
     double L1Distance(double* f1, double* f2, int sz);
     double L2Distance(double* f1, double* f2, int sz);
     inline int pos(int x, int y) { return y * width + x; }

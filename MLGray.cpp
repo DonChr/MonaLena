@@ -298,6 +298,79 @@ bool MLGray::Jarvis(int32_t threshold) {
 	return true;
 }
 
+/*
+      .   .   x   8   4
+      2   4   8   4   2
+      1   2   4   2   1
+*/
+
+bool MLGray::Stucki(int32_t threshold) {
+	if ((height <= 1) || (width <= 1)) { return false; }
+	const double f8 = 8.0 / 42.0;
+	const double f4 = 4.0 / 42.0;
+	const double f2 = 2.0 / 42.0;
+	const double f1 = 1.0 / 42.0;
+	int lpos;
+	int px;
+	// Ghost row at top. Propagates the error down to first row
+	int32_t* tmp = new int32_t[width];
+	memcpy(tmp, data, width * sizeof(int32_t));
+	for (int x = 0; x < width - 1; x++) {
+		int32_t v = tmp[x];
+		int err = (v < threshold) ? v : WHITE - v;
+		data[x + 1] += (int32_t)(err * f8  + 0.5);
+		data[x] += (int32_t)(err * f8 + 0.5);
+	}
+	for (int y = 0; y < height; y++) {
+		lpos = line(y);
+		for (int x = 0; x < width; x++) {
+			px = lpos + x;
+			int32_t v = data[px];
+			data[px] = (v < threshold) ? BLACK : WHITE;
+			int32_t err = v - data[px];
+			if (x < width - 1) {
+				data[px + 1] += (int32_t)(err * f8 + 0.5);
+				if (y < height - 1) {
+					data[px + width+1] += (int32_t)(err * f4 + 0.5);
+					if (y < height - 2) {
+						data[px + 2*width + 1] += (int32_t)(err * f2 + 0.5);
+					}
+				}
+				if (x < width - 2) {
+					data[px + 2] += (int32_t)(err * f4 + 0.5);
+					if (y < height - 1) {
+						data[px + width + 2] += (int32_t)(err * f2 + 0.5);
+						if (y < height - 2) {
+							data[px + 2 * width + 2] += (int32_t)(err * f1 + 0.5);
+						}
+					}
+				}
+			}
+			if (y < height - 1) { 
+				data[px + width] += (int32_t)(err * f8 + 0.5); 
+				if(y<height-2) { data[px + 2*width] += (int32_t)(err * f4 + 0.5); }
+			}
+			if (x>0) {
+				if (y < height - 1) {
+					data[px + width - 1] += (int32_t)(err * f4 + 0.5);
+					if (y < height - 2) { data[px + 2*width - 1] += (int32_t)(err * f2 + 0.5); }
+				}
+				if (x > 1) {
+					if (y < height - 1) {
+						data[px + width - 2] += (int32_t)(err * f2 + 0.5);
+						if (y < height - 2) { data[px + 2 * width - 2] += (int32_t)(err * f1 + 0.5); }
+					}
+
+				}
+			}
+
+		}
+	}
+	delete[] tmp;
+	return true;
+}
+
+
 bool MLGray::FloydSteinberg(int32_t threshold) {
 	if ((height <= 1) || (width <= 1)) { return false; }
 	const double f7 = 0.4375; // 7/16
@@ -361,13 +434,18 @@ int MLGray::OptJarvis(int from, int to) {
 	return OptHalftone(from, to,JARVIS);
 }
 
+int MLGray::OptStucki(int from, int to) {
+	return OptHalftone(from, to,STUCKI);
+}
+
+
 
 int MLGray::OptFloydSteinberg(int from, int to) {
 	return OptHalftone(from, to, FLOYDSTEINBERG);
 }
 
 int MLGray::OptHalftone(int from, int to,const int halftoneId) {
-	if ((halftoneId != FLOYDSTEINBERG) && (halftoneId != OSTROMOUKHOV) && (halftoneId != JARVIS)) { return -1; }
+	if ((halftoneId != FLOYDSTEINBERG) && (halftoneId != OSTROMOUKHOV) && (halftoneId != JARVIS)&&(halftoneId!=STUCKI)) { return -1; }
 	int32_t sz = width * height;
 	double* G = new double[sz];
 	double* oG = new double[sz];
@@ -380,6 +458,7 @@ int MLGray::OptHalftone(int from, int to,const int halftoneId) {
 		if (halftoneId == FLOYDSTEINBERG) { ot.FloydSteinberg(thres); }
 		if (halftoneId == OSTROMOUKHOV) { ot.Ostromoukhov(thres); }
 		if (halftoneId == JARVIS) { ot.Jarvis(thres); }
+		if (halftoneId == STUCKI) { ot.Stucki(thres); }
 		ot.Gauss77FilterDbl(oG);
 		int64_t dist = 0;
 		double diff = L1Distance(G,oG,sz);
@@ -399,6 +478,7 @@ int MLGray::OptHalftone(int from, int to,const int halftoneId) {
 		if (halftoneId == FLOYDSTEINBERG) { ot.FloydSteinberg(thres); }
 		if (halftoneId == OSTROMOUKHOV) { ot.Ostromoukhov(thres); }
 		if (halftoneId == JARVIS) { ot.Jarvis(thres); }
+		if (halftoneId == STUCKI) { ot.Stucki(thres); }
 		ot.Gauss77FilterDbl(oG);
 		double diff = L1Distance(G,oG,sz);
 		if (diff < bestVal) {
@@ -417,6 +497,10 @@ int MLGray::OptHalftone(int from, int to,const int halftoneId) {
 	}
 	if (halftoneId == JARVIS) { 
 		std::cout << "OptJarvis: BEST-Threshold = " << bestThres << ", bestDist = " << bestDist << std::endl;
+		ot.Jarvis(bestThres);
+	}
+	if (halftoneId == STUCKI) { 
+		std::cout << "OptStucki: BEST-Threshold = " << bestThres << ", bestDist = " << bestDist << std::endl;
 		ot.Jarvis(bestThres);
 	}
 	int64_t dt = 0;
@@ -824,6 +908,19 @@ bool MLGray::SaltPepper(int32_t threshold) {
 	}
 	return true;
 }
+
+bool MLGray::Invert() {
+	if ((height <= 0) || (width <= 0)) { return false; }
+	for (int y = 0; y < height; y++) {
+		int lpos = line(y);
+		for (int x = 0; x < width; x++) {
+			int px = lpos + x;
+			data[px] ^= WHITE;
+		}
+	}
+	return true;
+}
+
 
 bool MLGray::Majority() {
 	if ((height <= 0) || (width <= 0)) { return false; }

@@ -227,6 +227,10 @@ bool Halftoning(string op, MLGray& img) {
 		if (Param(op, p1)) { return img.Jarvis(p1); }
 		return img.Jarvis();
 	}
+	if (op.find("Stucki") == 0) {
+		if (Param(op, p1)) { return img.Stucki(p1); }
+		return img.Stucki();
+	}
 	if (op.find("Ostromoukhov") == 0) {
 		if (Param(op, p1)) { return img.Ostromoukhov(p1); }
 		return img.Ostromoukhov();
@@ -242,6 +246,10 @@ bool Halftoning(string op, MLGray& img) {
 	if (op.find("OptJarvis") == 0) {
 		if (Param2(op, p1, p2)) { return (img.OptJarvis(p1, p2) >= 0); }
 		return (img.OptJarvis() >= 0);
+	}
+	if (op.find("OptStucki") == 0) {
+		if (Param2(op, p1, p2)) { return (img.OptStucki(p1, p2) >= 0); }
+		return (img.OptStucki() >= 0);
 	}
 
 	if (op.find("Bayer44") == 0) {
@@ -288,6 +296,9 @@ bool Postprocess(string op, MLGray& img) {
 	}
 	if (op.find("Majority") == 0) {
 		return img.Majority();
+	}
+	if (op.find("Invert") == 0) {
+		return img.Invert();
 	}
 	if (op.find("GameOfLife") == 0) {
 		if (Param2(op, p1,p2)) {
